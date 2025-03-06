@@ -1,45 +1,66 @@
 #!/bin/bash
 
+# Define color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Check if a package name was passed as an argument
+if [ -z "$1" ]; then
+    echo -e "${YELLOW}Usage: $0 <package_name>${NC}"
+    exit 1
+fi
+
+PACKAGE="$1"
+
 # Ensure the script is run as root
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root."
+   echo -e "${RED}This script must be run as root.${NC}"
    exit 1
 fi
 
-# Prompt the user for the package name
-read -p "Enter the package name to install: " PACKAGE
-
+echo -e "${BLUE}Checking if package '${PACKAGE}' exists...${NC}"
 # Check if the package exists in the apt cache
 if apt-cache show "$PACKAGE" > /dev/null 2>&1; then
-    echo "Package '$PACKAGE' found in repositories."
+    echo -e "${GREEN}Package '${PACKAGE}' found in repositories.${NC}"
 else
-    echo "Error: Package '$PACKAGE' does not exist in repositories."
+    echo -e "${RED}Error: Package '${PACKAGE}' does not exist in repositories.${NC}"
     exit 1
 fi
 
 # Define the base directory where images are stored
-IMAGE_DIR_BASE="/mnt"
-echo "Installing package '$PACKAGE' into images under $IMAGE_DIR_BASE ..."
+IMAGE_DIR_BASE="/mnt/netboot_common/nfs"
+echo -e "${BLUE}Installing package '${PACKAGE}' into images under ${IMAGE_DIR_BASE}...${NC}"
 
-# Iterate over each directory in /mnt
-for IMAGE in "$IMAGE_DIR_BASE"/*; do
+# Iterate over each directory matching /mnt/netboot_common/nfs/red*
+for IMAGE in "$IMAGE_DIR_BASE/red"*; do
   if [ -d "$IMAGE" ]; then
-    echo "Processing image: $IMAGE"
+    echo -e "${YELLOW}-------------------------------${NC}"
+    echo -e "${YELLOW}Processing image: ${IMAGE}${NC}"
     
-    # Mount necessary filesystems into the chroot environment
-    mount --bind /proc "$IMAGE/proc"
-    mount --bind /sys "$IMAGE/sys"
-    mount --bind /dev "$IMAGE/dev"
+    echo -e "${BLUE}Mounting necessary filesystems for chroot...${NC}"
+    sudo mount --bind /proc "$IMAGE/proc"
+    sudo mount --bind /sys "$IMAGE/sys"
+    sudo mount --bind /dev "$IMAGE/dev"
+    sudo mount --bind /run "$IMAGE/run"
     
-    # Update the package list and install the package inside the chroot
-    chroot "$IMAGE" apt-get update
-    chroot "$IMAGE" apt-get install -y "$PACKAGE"
+    echo -e "${BLUE}Updating package list inside chroot at ${IMAGE}...${NC}"
+    chroot "$IMAGE" apt update
     
-    # Unmount the bound filesystems
-    umount "$IMAGE/proc"
-    umount "$IMAGE/sys"
-    umount "$IMAGE/dev"
+    echo -e "${BLUE}Installing package '${PACKAGE}' inside chroot at ${IMAGE}...${NC}"
+    chroot "$IMAGE" apt install -y "$PACKAGE"
+    
+    echo -e "${BLUE}Unmounting filesystems for ${IMAGE}...${NC}"
+    sudo umount "$IMAGE/proc"
+    sudo umount "$IMAGE/sys"
+    sudo umount "$IMAGE/dev"
+    sudo umount "$IMAGE/run"
+    
+    echo -e "${GREEN}Finished processing image: ${IMAGE}${NC}"
+    echo -e "${YELLOW}-------------------------------${NC}"
   fi
 done
 
-echo "Package installation complete for all images."
+echo -e "${GREEN}Package installation complete for all images.${NC}"
