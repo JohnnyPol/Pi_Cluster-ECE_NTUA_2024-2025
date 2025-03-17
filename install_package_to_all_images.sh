@@ -35,7 +35,7 @@ IMAGE_DIR_BASE="/mnt/netboot_common/nfs"
 echo -e "${BLUE}Installing package '${PACKAGE}' into images under ${IMAGE_DIR_BASE}...${NC}"
 
 # Iterate over each directory matching /mnt/netboot_common/nfs/red*
-for IMAGE in "$IMAGE_DIR_BASE/red"*; do
+for IMAGE in "$IMAGE_DIR_BASE/red"* "$IMAGE_DIR_BASE/blue"*; do
   if [ -d "$IMAGE" ]; then
     echo -e "${YELLOW}-------------------------------${NC}"
     echo -e "${YELLOW}Processing image: ${IMAGE}${NC}"
