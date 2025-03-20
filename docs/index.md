@@ -15,7 +15,7 @@ http_access allow localnet
 Then sudo systemctl restart squid in order the changes to be applied. In the file ~./bashrc we add at the end these
 export http_proxy="http://192.168.2.1:3128"
 export https_proxy="http://192.168.2.1:3128"
-Lastly we create this /etc/apt/apt.conf and inside we add these two lines
+Lastly we create this /etc/apt/apt.conf and inside we add these two lines:<br>
 Acquire::http::Proxy "http://192.168.2.1:3128";
 Acquire::https::Proxy "http://192.168.2.1:3128";
 
