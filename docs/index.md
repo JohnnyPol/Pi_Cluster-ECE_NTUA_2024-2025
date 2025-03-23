@@ -19,6 +19,10 @@ Lastly we create this /etc/apt/apt.conf and inside we add these two lines:<br>
 Acquire::http::Proxy "http://192.168.2.1:3128"; <br>
 Acquire::https::Proxy "http://192.168.2.1:3128";
 
-
+### Apt problems
+_ChatGPT session used to fix below issues: https://chatgpt.com/share/67e06d52-1ed4-8001-9511-8107e352d857_
+- Every time we tried to install any package with apt we got messages like this: `/usr/bin/mandb: fopen /var/cache/man/zh_CN/42094: Permission denied` at the end of the output. **Fix**: changed permissions: `sudo chown -R root:man /var/cache/man` and `sudo chmod -R g+w /var/cache/man`
+- `flash-kernel` package always failed so we removed it since with boot from the network and not from sd card `apt remove flash-kernel`
+- There are still some issues with `initramfs-tools` package **unsolved**
  
   
