@@ -19,3 +19,4 @@ Following the steps of [this](https://www.geeksforgeeks.org/deployment-diagram-u
 [Another Article for Cluster](https://glmdev.medium.com/building-a-raspberry-pi-cluster-784f0df9afbd) <br>
 [Slurm Documentation](https://slurm.schedmd.com/documentation.html) <br>
 [Useful YouTube Video for Slurm](https://www.youtube.com/watch?v=YZbRnrfECfo) <br>
+[Slurm Installation Repository Tutorial](https://github.com/ReverseSage/Slurm-ubuntu-20.04.1) <br>
