@@ -21,3 +21,23 @@ Following the steps of [this](https://www.geeksforgeeks.org/deployment-diagram-u
 [Useful YouTube Video for Slurm](https://www.youtube.com/watch?v=YZbRnrfECfo) <br>
 [Slurm Installation Repository Tutorial](https://github.com/ReverseSage/Slurm-ubuntu-20.04.1) <br>
 [Slurm Configuration Generator Tool](https://slurm.schedmd.com/configurator.html) <br>
+
+
+## Slurm setup (small specification so we don't forget)
+1. Installed chrony instead of NTP for node synchronization
+```bash
+sudo apt update
+sudo apt install chrony
+```
+2. Edited the `/etc/chrony/chrony.conf` file and added these lines:
+```bash
+# Allow local hardware clock as fallback
+server 127.127.1.0
+
+# Let clients from the local network sync time from this server
+allow 192.168.2.0/24
+
+# Act as an authoritative source even without external time
+local stratum 10
+
+```
