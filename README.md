@@ -18,3 +18,4 @@ Following the steps of [this](https://www.geeksforgeeks.org/deployment-diagram-u
 [Article for the Cluster Setup](https://jackyko1991.github.io/journal/Cluster-Setup-2.html) <br>
 [Another Article for Cluster](https://glmdev.medium.com/building-a-raspberry-pi-cluster-784f0df9afbd) <br>
 [Slurm Documentation](https://slurm.schedmd.com/documentation.html) <br>
+[Useful YouTube Video for Slurm](https://www.youtube.com/watch?v=YZbRnrfECfo) <br>
