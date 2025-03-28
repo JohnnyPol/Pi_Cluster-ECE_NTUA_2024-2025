@@ -20,3 +20,4 @@ Following the steps of [this](https://www.geeksforgeeks.org/deployment-diagram-u
 [Slurm Documentation](https://slurm.schedmd.com/documentation.html) <br>
 [Useful YouTube Video for Slurm](https://www.youtube.com/watch?v=YZbRnrfECfo) <br>
 [Slurm Installation Repository Tutorial](https://github.com/ReverseSage/Slurm-ubuntu-20.04.1) <br>
+[Slurm Configuration Generator Tool](https://slurm.schedmd.com/configurator.html) <br>
