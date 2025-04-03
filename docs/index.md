@@ -31,3 +31,9 @@ _ChatGPT session used to fix below issues: https://chatgpt.com/share/67e06d52-1e
  command **sudo chmod 755 vmlinuz-6.8.0-1020-raspi**. Then we reboot the pis and the problem was fixed.
   ![image](https://github.com/user-attachments/assets/892ba1f3-a046-4e71-92a3-4560c0ab55a6)
 
+  ### PSSH Installation and use
+  For more info see the link https://www.cyberciti.biz/cloud-computing/how-to-use-pssh-parallel-ssh-program-on-linux-unix/. PSSH is responsible for parallel ssh-ing. In order to install it in the hpc_master we perform **sudo apt install pssh**. The next step is to generate ssh keys in order to public-private keys for passwordless ssh. This step is already done. First we create a text file called hosts file from which pssh read hosts names. The syntax is pretty simple. Each line in the host file are of the form [user@]host[:port] and can include blank lines and comments lines beginning with “#”. Following the tutorial we name this text file **~/.pssh_hosts_files**. Then we run **pssh -i -h ~/.pssh_hosts_files date** and then this **pssh -i -h ~/.pssh_hosts_files uptime**. A typical example of the use of pssh is this **pssh -h ~/.pssh_hosts_files -- sudo apt-get -y update**
+
+
+
+ 
