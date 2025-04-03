@@ -24,5 +24,9 @@ _ChatGPT session used to fix below issues: https://chatgpt.com/share/67e06d52-1e
 - Every time we tried to install any package with apt we got messages like this: `/usr/bin/mandb: fopen /var/cache/man/zh_CN/42094: Permission denied` at the end of the output. **Fix**: changed permissions: `sudo chown -R root:man /var/cache/man` and `sudo chmod -R g+w /var/cache/man`
 - `flash-kernel` package always failed so we removed it since with boot from the network and not from sd card `apt remove flash-kernel`
 - There are still some issues with `initramfs-tools` package **unsolved**
- 
+
+ ### Upgrade - Problems
+ The initial setup establishes a compressed code of Linux kernel of vmlinuz-6.8.0-1010-raspi. This was altered due to a **sudo apt upgrade** 
+ in the login node and the softlinks changed to vmlinuz-6.8.0-1020-raspi which was not an executable file. This was detected by journalctl and  inspecting the log files. So in order to fix this issue we gave the necessary rigths so as to make the new compressed kernel code by the     
+ command **sudo chmod 755 vmlinuz-6.8.0-1020-raspi**. Then we reboot the pis and the problem was fixed.
   
