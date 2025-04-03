@@ -29,4 +29,5 @@ _ChatGPT session used to fix below issues: https://chatgpt.com/share/67e06d52-1e
  The initial setup establishes a compressed code of Linux kernel of vmlinuz-6.8.0-1010-raspi. This was altered due to a **sudo apt upgrade** 
  in the login node and the softlinks changed to vmlinuz-6.8.0-1020-raspi which was not an executable file. This was detected by journalctl and  inspecting the log files. So in order to fix this issue we gave the necessary rigths so as to make the new compressed kernel code by the     
  command **sudo chmod 755 vmlinuz-6.8.0-1020-raspi**. Then we reboot the pis and the problem was fixed.
-  
+  ![image](https://github.com/user-attachments/assets/892ba1f3-a046-4e71-92a3-4560c0ab55a6)
+
