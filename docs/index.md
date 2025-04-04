@@ -34,6 +34,8 @@ _ChatGPT session used to fix below issues: https://chatgpt.com/share/67e06d52-1e
   ### PSSH Installation and use
   For more info see the link https://www.cyberciti.biz/cloud-computing/how-to-use-pssh-parallel-ssh-program-on-linux-unix/. PSSH is responsible for parallel ssh-ing. In order to install it in the hpc_master we perform **sudo apt install pssh**. The next step is to generate ssh keys in order to public-private keys for passwordless ssh. This step is already done. First we create a text file called hosts file from which pssh read hosts names. The syntax is pretty simple. Each line in the host file are of the form [user@]host[:port] and can include blank lines and comments lines beginning with “#”. Following the tutorial we name this text file **~/.pssh_hosts_files**. Then we run **pssh -i -h ~/.pssh_hosts_files date** and then this **pssh -i -h ~/.pssh_hosts_files uptime**. A typical example of the use of pssh is this **pssh -h ~/.pssh_hosts_files -- sudo apt-get -y update**. Because  when running parallel-ssh -h .pssh_hosts_files -i date we face an error failure about the authenticity of the host so we change the format of the hosts file to just red1 red2 ... blue8. Also the file of the hosts is now named pssh_hosts in the home of hpc_master and in order to run the commands to all hosts execute **parallel-ssh -h pssh_hosts -x "-F .ssh/config" -i date**
 
+  In order to avoid typing the above command over and over again we have created the `prun.sh` executable that takes a command as a parameter. We have also created a link `prun` with the command `ln -s /home/hpc_master/prun.sh /usr/bin/prun` to be able to run commands to all of the workers using `prun <command>`.
+
 
 
  
