@@ -41,10 +41,10 @@ for IMAGE in "$IMAGE_DIR_BASE/red"* "$IMAGE_DIR_BASE/blue"*; do
     echo -e "${YELLOW}Processing image: ${IMAGE}${NC}"
     
     echo -e "${BLUE}Mounting necessary filesystems for chroot...${NC}"
-    sudo mount --bind /proc "$IMAGE/proc"
-    sudo mount --bind /sys "$IMAGE/sys"
-    sudo mount --bind /dev "$IMAGE/dev"
-    sudo mount --bind /run "$IMAGE/run"
+    mount --bind /proc "$IMAGE/proc"
+    mount --bind /sys "$IMAGE/sys"
+    mount --bind /dev "$IMAGE/dev"
+    mount --bind /run "$IMAGE/run"
     
     echo -e "${BLUE}Updating package list inside chroot at ${IMAGE}...${NC}"
     chroot "$IMAGE" apt update
@@ -53,10 +53,10 @@ for IMAGE in "$IMAGE_DIR_BASE/red"* "$IMAGE_DIR_BASE/blue"*; do
     chroot "$IMAGE" apt install -y "$PACKAGE"
     
     echo -e "${BLUE}Unmounting filesystems for ${IMAGE}...${NC}"
-    sudo umount "$IMAGE/proc"
-    sudo umount "$IMAGE/sys"
-    sudo umount "$IMAGE/dev"
-    sudo umount "$IMAGE/run"
+    umount "$IMAGE/proc"
+    umount "$IMAGE/sys"
+    umount "$IMAGE/dev"
+    umount "$IMAGE/run"
     
     echo -e "${GREEN}Finished processing image: ${IMAGE}${NC}"
     echo -e "${YELLOW}-------------------------------${NC}"
