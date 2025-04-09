@@ -24,20 +24,36 @@ Following the steps of [this](https://www.geeksforgeeks.org/deployment-diagram-u
 
 
 ## Slurm setup (small specification so we don't forget)
-1. Installed chrony instead of NTP for node synchronization
+1. Install chrony instead of NTP in every node for time synchronization
 ```bash
 sudo apt update
 sudo apt install chrony
 ```
 2. Edited the `/etc/chrony/chrony.conf` file and added these lines:
+In hpc_master:
 ```bash
-# Allow local hardware clock as fallback
-server 127.127.1.0
-
-# Let clients from the local network sync time from this server
 allow 192.168.2.0/24
 
-# Act as an authoritative source even without external time
-local stratum 10
+# Default Ubuntu NTP servers are okay
+server ntp.ubuntu.com iburst
 
+local stratum 10
 ```
+In worker nodes first comment out every line starting with `pool` or `server` and then:
+```bash
+# Use master Pi as NTP server
+server 192.168.2.117 iburst
+```
+3. In every node restart and enable the chrony service (first for hpc_master):
+```bash
+systemctl restart chrony
+systemctl enable chrony
+```
+4. Run `chronyc sources`, you should get the below results:
+
+In hpc_master:
+![Screenshot from 2025-04-09 17-49-46](https://github.com/user-attachments/assets/8fbb0299-b3a3-4e4c-9dc1-1bf6f809df82)
+
+In worker nodes:
+![Screenshot from 2025-04-09 17-49-32](https://github.com/user-attachments/assets/7d3ce405-c260-4d62-b129-59c6d04ecf9f)
+
