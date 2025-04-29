@@ -1,0 +1,110 @@
+---
+- name: Configure NIS client on worker nodes
+  hosts: all  # or specify your worker nodes group
+  become: yes  # run with sudo privileges
+
+  tasks:
+    # First task: Update package index
+    - name: Update apt package index
+      apt:
+        update_cache: yes
+      tags: update  # Allows you to run just this task with --tags update
+
+    - name: Install required packages
+      apt:
+        name:
+          - rpcbind
+          - nis
+        state: present
+        update_cache: yes
+
+    - name: Set default domain
+      copy:
+        dest: /etc/defaultdomain
+        content: "hpcnisdom"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Allow rpcbind in hosts.allow
+      lineinfile:
+        path: /etc/hosts.allow
+        line: "rpcbind: ALL"
+        create: yes
+
+    - name: Configure yp.conf with domain and server
+      blockinfile:
+        path: /etc/yp.conf
+        block: |
+          domain hpcnisdom server 192.168.2.117
+          ypserver 192.168.2.117
+        create: yes
+
+    - name: Configure nsswitch.conf
+      copy:
+        dest: /etc/nsswitch.conf
+        content: |
+          # /etc/nsswitch.conf
+          #
+          passwd:         files nis systemd
+          group:          files nis systemd
+          shadow:         files nis systemd
+          gshadow:        files systemd
+
+          hosts:          files dns
+          networks:       files
+
+          protocols:      db files
+          services:       db files
+          ethers:         db files
+          rpc:            db files
+
+          netgroup:       nis
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Add NIS placeholders to system files
+      block:
+        - name: Add to /etc/passwd
+          lineinfile:
+            path: /etc/passwd
+            line: "+::::::"
+            create: no
+
+        - name: Add to /etc/group
+          lineinfile:
+            path: /etc/group
+            line: "+:::"
+            create: no
+
+        - name: Add to /etc/shadow
+          lineinfile:
+            path: /etc/shadow
+            line: "+::::::::"
+            create: no
+
+    - name: Create _rpc system user
+      user:
+        name: _rpc
+        system: yes
+        create_home: no
+        shell: /usr/sbin/nologin
+
+    - name: Restart rpcbind service
+      service:
+        name: rpcbind
+        state: restarted
+        enabled: yes
+
+    - name: Restart ypbind service
+      service:
+        name: ypbind
+        state: restarted
+        enabled: yes
+
+    - name: Configure sudo for shareduser
+      lineinfile:
+        path: /etc/sudoers
+        line: "shareduser ALL=(ALL) NOPASSWD: ALL"
+        validate: 'visudo -cf %s'

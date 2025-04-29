@@ -1,0 +1,30 @@
+---
+- name: Ensure shareduser can authenticate across all nodes
+  hosts: all  # or your worker group
+  become: yes
+  vars:
+    shareduser_home: /home/shareduser
+
+  tasks:
+    # 1. Verify NIS user exists (informational)
+    - name: Check if shareduser exists in NIS
+      command: getent passwd shareduser
+      register: shareduser_exists
+      changed_when: false
+      failed_when: false
+
+    - name: Display shareduser info
+      debug:
+        var: shareduser_exists.stdout_lines
+      when: shareduser_exists.stdout != ""
+
+    # 2. Ensure home directory exists with correct permissions
+    - name: Create shareduser home directory
+      file:
+        path: "{{ shareduser_home }}"
+        state: directory
+        owner: shareduser
+        group: shareduser
+        mode: '0700'
+      when: shareduser_exists.stdout != ""
+
