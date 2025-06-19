@@ -125,3 +125,8 @@ In hpc_master:
 In worker nodes:
 ![Screenshot from 2025-04-09 17-49-32](https://github.com/user-attachments/assets/7d3ce405-c260-4d62-b129-59c6d04ecf9f)
 
+## Grafana & Prometheus & Node Exporter
+[Installation Tutorial](https://tecadmin.net/how-to-setup-prometheus-and-grafana-on-ubuntu/)
+
+
+
