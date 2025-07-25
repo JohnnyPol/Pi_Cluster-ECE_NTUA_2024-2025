@@ -1,6 +1,6 @@
 # HPC Team Documentation
 - [Main Target and Structure of Pi's Cluster](#main-target-and-structure-of-pis-cluster)
-- [Features](#features)
+- [Operating System](#operating-system)
 
 ---
 # Main Target and Structure of the Pi Cluster
@@ -29,3 +29,5 @@ The primary objective of this project is to execute and evaluate parallel progra
 - Measure and analyze the performance of the cluster using graphical profiling and monitoring tools.
 - Assess the scalability and efficiency of the cluster in handling compute-intensive tasks.
 
+# Operating System
+The hard disk that is supported in the login node has Ubuntu 24.04, since it is certified well working in Raspberry Pi 4 and it can accomodate the facilities of Slurm,Ansible,etc. For all the other pis PXE BOOT is used, a process which allows a computer to boot an operating system over the network instead of a local storage like a flash disk. Firstly, we enabled PXE boot in order Network Iinterface (NIC) and suitable PXE firmware to take action. Furthermore, a client sents a DHCP Request(specifically **DHCPDISCOVER**) broadcast on the network asking for an ip address,location of the boot server and a boot file name. A PXE boot server then provides as an answer a TFTP server IP and a boot file(i.e pxelinux.0). The client then contacts the TFTP server and downloads the bootloader file. Inside this file, we can find a config file(i.epxelinux.cfg/default) which tells the client what OS/kernel/initrd to load ad kernel-command-line arguments. Lastly, the linux kernel is downloaded along with the initial RAM disk and both of them are loaded into memeory, a fact which enables the booting into the desired OS.
