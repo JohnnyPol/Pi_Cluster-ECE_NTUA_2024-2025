@@ -3,6 +3,7 @@
 - [Operating System](#operating-system)
 - [NFS Setup](#NFS-Setup)
 - [Ansible](#Ansible)
+- [NIS](#NIS)
 - [Deployment Diagram](#Deployment-Diagram)
 
 ---
@@ -52,7 +53,10 @@ Ansible is an open-source IT automation tool that allows you to:
 * Configure systems (e.g., install software, set environment variables)
 * Deploy applications (e.g., push your app to remote servers)
 * Orchestrate tasks across multiple machines (e.g., rolling updates, cloud provisioning)
-This tool was mainly used so as to create the shared user directory and NIS clients which are going to be discussed in the next section of the documentation. Ansible supports .yml formats and it could be used for every other part that could have been automated
+This tool was mainly used so as to create the shared user directory and NIS clients which are going to be discussed in the next section of the documentation. Ansible supports .yml formats and it could be used for every other part that could have been automated like the creation of nfs clients.
+
+# NIS
+NIS (Network Information Service) is a client-server directory service protocol used for centralized management of user and system information in a Unix or Linux network. Via NIS we can manage user and group accounts, hostnames, network configuration, etc. The primary architecture of NIS follwos the master slave model. The first role is played by NIS Server which stores and serves the centralized database from which the NIS Clients query for the information we talked about previously. The main link the setup was based on is [this](#https://help.ubuntu.com/community/SettingUpNISHowTo). 
 
 # Deployment Diagram 
 In order to create a well-visualized result of our work, we created a deployment diagram following the rules in [this link](https://www.geeksforgeeks.org/system-design/deployment-diagram-unified-modeling-languageuml/) : 
