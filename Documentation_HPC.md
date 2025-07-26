@@ -1,6 +1,7 @@
 # HPC Team Documentation
 - [Structure of Cluster](#Structure-of-Cluster)
 - [Operating System](#operating-system)
+- [NFS Setup](#NFS-Setup)
 
 ---
 # Structure of Cluster
@@ -39,3 +40,6 @@ The hard disk that is supported in the login node has Ubuntu 24.04, since it is 
 4. Boot over the network
 For code details please see this [file](pxe_notes.pdf) and for the script that automates the installation of a specified APT package into multiple chrooted Linux system images stored under /mnt/netboot_common/nfs see [this file](install_package_to_all_images.sh) .
 (Note : DHCP server is a network server that automatically assigns IP addresses and other network configuration parameters to devices on a network and TFTP is a simplified file transfer service that allows devices to exchange files across a network)
+
+# NFS Setup
+Every Raspberry Pi device sees the same disk via NFS. NFS, or Network File System, is a protocol that allows users to access and manage files on a remote computer as if they were stored locally. It enables file sharing across a network, making it easier to collaborate and access data from different devices. The shared directory is /mnt/hpc_shared. Additionally, for the setups of NFS, we firstly install NFS Server on login node and then create the shared directory previously mentioned. Then we configure the /etc/exports and afterwards we export ans start the NFS Server. Lastly we setup the NFS Clients on every compute node(i.e red3) by mounting them on the shared directory and we make it persistent on reboot by edit the /etc/fstab file. For more code information make sure to look in [this file](NFS_Setup)
