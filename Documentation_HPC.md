@@ -1,9 +1,9 @@
 # HPC Team Documentation
-- [Main Target and Structure of Pi's Cluster](#main-target-and-structure-of-pis-cluster)
+- [Structure of Cluster](#Structure-of-Cluster)
 - [Operating System](#operating-system)
 
 ---
-# Main Target and Structure of the Pi Cluster
+# Structure of Cluster
 
 Our team has developed a high-performance computing (HPC) cluster using 16 Raspberry Pi 4 devices. The cluster is composed of:
 
