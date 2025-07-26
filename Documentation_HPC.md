@@ -37,6 +37,6 @@ The hard disk that is supported in the login node has Ubuntu 24.04, since it is 
 2. Download bootloader via TFTP
 3. Load kernel and OS image
 4. Boot over the network
-For code details please see the file called operation_systems.
+For code details please see the file called pxe_notes.pdf .
    
 (Note : DHCP server is a network server that automatically assigns IP addresses and other network configuration parameters to devices on a network and TFTP is a simplified file transfer service that allows devices to exchange files across a network)
