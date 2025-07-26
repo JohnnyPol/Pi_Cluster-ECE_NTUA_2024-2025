@@ -65,7 +65,7 @@ Slurm (formerly Simple Linux Utility for Resource Management) is an open-source 
 <img width="903" height="483" alt="image" src="https://github.com/user-attachments/assets/564807bb-d35f-4385-8998-1032c6900ddb" />
 
 # Monitoring Tools
-In order to quantify and measure the perfromance of the system along with resource consumption, we installed Grafana and Prometheous. The latter is a time-series database and monitoring system. It collects metrics from targets at regular intervals, stores them, and allows querying and alerting based on this data. Grafana is a visualization and dashboarding tool. It lets you query, visualize, alert on, and explore your metrics. In conclusion, Prometheous scrapes and stores performance metrics and Grafana queries on this database, while visualizing the results in dashboards.
+In order to quantify and measure the perfromance of the system along with resource consumption, we installed Grafana and Prometheous. The latter is a time-series database and monitoring system. It collects metrics from targets at regular intervals, stores them, and allows querying and alerting based on this data. Grafana is a visualization and dashboarding tool. It lets you query, visualize, alert on, and explore your metrics. In conclusion, Prometheous scrapes and stores performance metrics and Grafana queries on this database, while visualizing the results in dashboards. For installtion please see [this](https://tecadmin.net/how-to-setup-prometheus-and-grafana-on-ubuntu/)
 
 # Deployment Diagram 
 In order to create a well-visualized result of our work, we created a deployment diagram following the rules in [this link](https://www.geeksforgeeks.org/system-design/deployment-diagram-unified-modeling-languageuml/) : 
