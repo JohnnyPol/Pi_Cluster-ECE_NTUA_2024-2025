@@ -5,6 +5,7 @@
 - [Ansible](#Ansible)
 - [NIS](#NIS)
 - [SLURM](#SLURM)
+- [Monitoring Tools](#monitoring-tools)
 - [Deployment Diagram](#Deployment-Diagram)
 
 ---
@@ -61,6 +62,10 @@ NIS (Network Information Service) is a client-server directory service protocol 
 
 # SLURM
 Slurm (formerly Simple Linux Utility for Resource Management) is an open-source job scheduler used by many high-performance computing (HPC) clusters to manage and allocate computational resources like CPUs, memory, and GPUs across multiple users and jobs. SLURM provides the opportunity to schedule jobs to run on available nodes, allocate resources(like memory,cores), run jobs in parallel(MPI) and monitor jobs and resource usage. For more information and code check [this](Slurm_Setup.md)
+<img width="903" height="483" alt="image" src="https://github.com/user-attachments/assets/564807bb-d35f-4385-8998-1032c6900ddb" />
+
+# Monitoring Tools
+In order to quantify and measure the perfromance of the system along with resource consumption, we installed Grafana and Prometheous. The latter is a time-series database and monitoring system. It collects metrics from targets at regular intervals, stores them, and allows querying and alerting based on this data. Grafana is a visualization and dashboarding tool. It lets you query, visualize, alert on, and explore your metrics. In conclusion, Prometheous scrapes and stores performance metrics and Grafana queries on this database, while visualizing the results in dashboards.
 
 # Deployment Diagram 
 In order to create a well-visualized result of our work, we created a deployment diagram following the rules in [this link](https://www.geeksforgeeks.org/system-design/deployment-diagram-unified-modeling-languageuml/) : 
