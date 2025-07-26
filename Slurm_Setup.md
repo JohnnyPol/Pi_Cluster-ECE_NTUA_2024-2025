@@ -35,3 +35,36 @@ Solution : Add in file /etc/slurm/slurm.conf on NodeName field the red6
 6. master: sudo ansible-playbook copy_db_slurm_config.yml –limit red6
 7. master: sudo systemctl restart slurmdbd και slurmctld
 8. master: sinfo -> Check that everything works as expected
+### Slurm setup (small specification so we synchronize the clocks of clients with master node)
+1. Install chrony instead of NTP in every node for time synchronization
+```bash
+sudo apt update
+sudo apt install chrony
+```
+2. Edited the `/etc/chrony/chrony.conf` file and added these lines:
+In hpc_master:
+```bash
+allow 192.168.2.0/24
+
+# Default Ubuntu NTP servers are okay
+server ntp.ubuntu.com iburst
+
+local stratum 10
+```
+In worker nodes first comment out every line starting with `pool` or `server` and then:
+```bash
+# Use master Pi as NTP server
+server 192.168.2.117 iburst
+```
+3. In every node restart and enable the chrony service (first for hpc_master):
+```bash
+systemctl restart chrony
+systemctl enable chrony
+```
+4. Run `chronyc sources`, you should get the below results:
+
+In hpc_master:
+![Screenshot from 2025-04-09 17-49-46](https://github.com/user-attachments/assets/8fbb0299-b3a3-4e4c-9dc1-1bf6f809df82)
+
+In worker nodes:
+![Screenshot from 2025-04-09 17-49-32](https://github.com/user-attachments/assets/7d3ce405-c260-4d62-b129-59c6d04ecf9f)
