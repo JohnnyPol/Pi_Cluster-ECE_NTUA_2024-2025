@@ -11,6 +11,8 @@ Our team has developed a high-performance computing (HPC) cluster using 16 Raspb
 - **1 master node**
 - **1 login node**
 
+The worker nodes are splitted in two different teams(each one of 8 pis) with names red and blue.
+
 ### Access Architecture
 
 To access the worker nodes, users must follow a multi-hop SSH process:
@@ -35,5 +37,6 @@ The hard disk that is supported in the login node has Ubuntu 24.04, since it is 
 2. Download bootloader via TFTP
 3. Load kernel and OS image
 4. Boot over the network
+For code details please see the file called operation_systems.
    
 (Note : DHCP server is a network server that automatically assigns IP addresses and other network configuration parameters to devices on a network and TFTP is a simplified file transfer service that allows devices to exchange files across a network)
