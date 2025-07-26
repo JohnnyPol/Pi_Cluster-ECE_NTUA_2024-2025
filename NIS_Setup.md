@@ -1,12 +1,12 @@
-# 🖥️ NIS Server/Client Setup Guide
+# NIS Server/Client Setup Guide
 
 This guide provides a complete and clear setup for NIS (Network Information Service) in a Linux environment.
 
 ---
 
-## 🧰 Step-by-step Setup
+## Step-by-step Setup
 
-### ✅ Step 1: Install Required Packages
+### Step 1: Install Required Packages
 
 **On both NIS Server and Clients:**
 
@@ -16,7 +16,7 @@ sudo apt-get install rpcbind nis -y
 
 ---
 
-### ✅ Step 2: Set the NIS Domain Name
+### Step 2: Set the NIS Domain Name
 
 **On both Server and Client:**
 
@@ -27,10 +27,10 @@ echo "hpcnisdom" | sudo tee /etc/defaultdomain
 
 > `nisdomainname` sets the runtime domain name.
 > `/etc/defaultdomain` makes it persistent across reboots.
-
+> `/etc/defaultdomain` was not already made.
 ---
 
-### ✅ Step 3: Configure `/etc/yp.conf`
+### Step 3: Configure `/etc/yp.conf`
 
 **On the Client:**
 
@@ -39,11 +39,11 @@ echo "domain hpcnisdom server 192.168.2.117" | sudo tee -a /etc/yp.conf
 echo "ypserver 192.168.2.117" | sudo tee -a /etc/yp.conf
 ```
 
-Replace `192.168.2.117` with your actual **NIS Server IP**.
+Address `192.168.2.1` is the IP Address of login node and was set as servername.
 
 ---
 
-### ✅ Step 4: Allow RPC Access
+### Step 4: Allow RPC Access
 
 **On the Client:**
 
@@ -53,7 +53,7 @@ echo "rpcbind: ALL" | sudo tee -a /etc/hosts.allow
 
 ---
 
-### ✅ Step 5: Fix `_rpc` Missing User (If Needed)
+### Step 5: Fix `_rpc` Missing User (If Needed)
 
 If you see errors like:
 
@@ -84,7 +84,7 @@ sudo systemctl status ypbind
 
 ---
 
-### ✅ Step 6: Enable NIS Maps on Server
+### Step 6: Enable NIS Maps on Server
 
 **On the NIS Server:**
 
@@ -108,7 +108,7 @@ sudo systemctl restart ypserv
 
 ---
 
-### ✅ Step 7: Create a Shared User
+### Step 7: Create a Shared User
 
 **On the NIS Server:**
 
@@ -129,7 +129,7 @@ sudo make -C /var/yp
 
 ---
 
-### ✅ Step 8: Modify `/etc/nsswitch.conf` (on Client)
+### Step 8: Modify `/etc/nsswitch.conf` (on Client)
 
 This file controls name service lookup order. Edit `/etc/nsswitch.conf` as follows:
 
@@ -151,7 +151,7 @@ netgroup:       nis
 
 ---
 
-### ✅ Step 9: Allow NIS Lookups (Compatibility)
+### Step 9: Allow NIS Lookups (Compatibility)
 
 To allow NIS to fetch accounts:
 
@@ -163,7 +163,7 @@ sudo echo '+::::::::' | sudo tee -a /etc/shadow
 
 ---
 
-### ✅ Step 10: Optional - Allow Shareduser Password-less sudo
+### Step 10: Optional - Allow Shareduser Password-less sudo
 
 ```bash
 echo "shareduser ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers
@@ -171,7 +171,7 @@ echo "shareduser ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers
 
 ---
 
-## ✅ Final Checks
+## Final Checks
 
 * **Check domain name** (must be the same on server and clients):
 
@@ -195,7 +195,7 @@ ypcat passwd
 
 ---
 
-## 📝 Notes
+## Notes
 
 * When adding new users on the **NIS Server**, always run:
 
