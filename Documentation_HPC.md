@@ -47,4 +47,5 @@ Every Raspberry Pi device sees the same disk via NFS. NFS, or Network File Syste
 
 # Deployment Diagram 
 In order to create a well-visualized result of our work, we created a deployment diagram following the rules in [this link](https://www.geeksforgeeks.org/system-design/deployment-diagram-unified-modeling-languageuml/) : 
+<img width="1548" height="1021" alt="DeploymentDiagram" src="https://github.com/user-attachments/assets/354a4649-e811-4e4f-bbfc-25f2b9f6cf58" />
 
