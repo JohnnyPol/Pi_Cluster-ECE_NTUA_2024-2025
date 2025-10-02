@@ -1,0 +1,45 @@
+---
+- name: Configure NFS clients (compute nodes)
+  hosts: clients
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Install NFS client utilities
+      apt:
+        name: nfs-common
+        state: present
+        update_cache: true
+
+    - name: Ensure local mountpoint exists
+      file:
+        path: "{{ nfs_mount_point }}"
+        state: directory
+        mode: "0755"
+
+    - name: Ensure persistent NFS mount in /etc/fstab
+      mount:
+        path: "{{ nfs_mount_point }}"
+        src: "{{ nfs_server_ip }}:{{ nfs_export_path }}"
+        fstype: nfs
+        opts: "{{ nfs_client_mount_opts }}"
+        state: present
+
+    - name: Ensure NFS share is mounted now
+      mount:
+        path: "{{ nfs_mount_point }}"
+        src: "{{ nfs_server_ip }}:{{ nfs_export_path }}"
+        fstype: nfs
+        opts: "{{ nfs_client_mount_opts }}"
+        state: mounted
+
+    - name: Quick write/read test file (optional)
+      copy:
+        dest: "{{ nfs_mount_point }}/ansible_probe_{{ inventory_hostname }}"
+        content: "probe from {{ inventory_hostname }}\n"
+      register: probe_result
+      failed_when: false
+
+    - name: Report probe result
+      debug:
+        msg: "Wrote probe file: {{ probe_result.dest | default('skipped') }}"

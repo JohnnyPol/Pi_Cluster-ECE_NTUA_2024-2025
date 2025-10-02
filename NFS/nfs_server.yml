@@ -1,0 +1,69 @@
+---
+- name: Configure NFS server (login node)
+  hosts: nfs_server
+  become: true
+  gather_facts: true
+
+  handlers:
+    - name: restart nfs
+      service:
+        name: nfs-kernel-server
+        state: restarted
+    - name: reload ufw
+      command: ufw reload
+      when: nfs_manage_ufw | bool
+
+  tasks:
+    - name: Install NFS server package
+      apt:
+        name: nfs-kernel-server
+        state: present
+        update_cache: true
+
+    - name: Ensure export directory exists
+      file:
+        path: "{{ nfs_export_path }}"
+        state: directory
+        owner: nobody
+        group: nogroup
+        mode: "0777"
+
+    - name: Ensure /etc/exports has our managed block
+      blockinfile:
+        path: /etc/exports
+        marker: "# {mark} ANSIBLE MANAGED NFS EXPORT"
+        block: |
+          {{ nfs_export_path }} {{ nfs_subnet_cidr }}({{ nfs_export_options }})
+      notify: restart nfs
+
+    - name: Apply export table (exportfs -ra)
+      command: exportfs -ra
+      changed_when: false   # blockinfile triggers restart already
+
+    - name: Enable and start NFS service
+      service:
+        name: nfs-kernel-server
+        enabled: true
+        state: started
+
+    - name: (Optional) Allow NFS via ufw for subnet
+      when: nfs_manage_ufw | bool
+      block:
+        - name: Ensure ufw is installed
+          apt:
+            name: ufw
+            state: present
+            update_cache: true
+
+        - name: Allow NFS from cluster subnet
+          ufw:
+            rule: allow
+            to_port: "2049"
+            proto: tcp
+            src: "{{ nfs_subnet_cidr }}"
+          notify: reload ufw
+
+        - name: Ensure ufw is enabled (non-interactive)
+          ufw:
+            state: enabled
+            policy: allow    # adjust default policy as you like
