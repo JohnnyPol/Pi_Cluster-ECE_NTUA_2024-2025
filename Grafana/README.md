@@ -1,4 +1,4 @@
-# 🚀 Monitoring Raspberry Pi HPC Cluster with Prometheus & Grafana
+# Monitoring Raspberry Pi HPC Cluster with Prometheus & Grafana
 
 This guide explains how to set up **Prometheus** and **Grafana** to monitor your Raspberry Pi HPC cluster.
 
@@ -261,7 +261,6 @@ Default credentials:
 * **Password:** admin
 
 Grafana will prompt you to change the password after the first login.
----
 
 ## Step 5: Connect Grafana to Prometheus
 
@@ -303,6 +302,62 @@ You can now:
 * Set up **alerts** in Grafana (e.g. notify when a node is down or CPU > 90%).
 
 
+## Automation with Ansible Scripts (Grafana, Prometheus & Node Exporter)
 
+Rolling out monitoring across a Raspberry Pi HPC cluster is tedious to do by hand. To keep things consistent and repeatable, we use **Ansible playbooks** to automate installing **Prometheus + Grafana** on the **`hpc_master`** and **Node Exporter** on all **compute nodes**.
 
+### Files used in automation
 
+* [**monitoring_server.yml**](./monitoring_server.yml)
+  Installs and configures **Prometheus** and **Grafana** on **`hpc_master`**:
+
+  * Creates Prometheus user, directories, and systemd service
+  * Downloads ARM binaries for Prometheus
+  * Renders `prometheus.yml` to scrape all compute nodes (generated from inventory)
+  * Adds the **updated Grafana APT repo** (keyring + `signed-by`)
+  * Installs and enables `grafana-server`
+
+* [**monitoring_clients.yml**](./monitoring_clients.yml)
+  Installs and configures **Node Exporter** on **all `compute_nodes`**:
+
+  * Creates `node_exporter` user and systemd service
+  * Downloads ARM binaries for Node Exporter
+  * Enables port `9100` service
+
+* [**group_vars/all.yml**](./group_vars/all.yml)
+  Central **variables** for both playbooks (versions, architectures, paths, optional extra scrape targets, Grafana repo key settings).
+
+  * Adjust `*_arch` to `linux-arm64` or `linux-armv7` depending on your Pi OS
+  * Add any **extra Prometheus targets** (e.g., `hpc_master:9100`) if you also run Node Exporter on the master
+
+* [**templates/prometheus.service.j2**](./templates/prometheus.service.j2)
+  Systemd unit template for Prometheus on `hpc_master`.
+
+* [**templates/node_exporter.service.j2**](./templates/node_exporter.service.j2)
+  Systemd unit template for Node Exporter on compute nodes.
+
+* [**templates/prometheus.yml.j2**](./templates/prometheus.yml.j2)
+  Prometheus config template that **auto-generates scrape targets** from the `compute_nodes` group in your inventory (plus any `prometheus_extra_targets`).
+
+* [**hosts.ini**](./hosts.ini)
+  The **inventory**:
+
+  * `monitoring` group → **`hpc_master`** (Prometheus + Grafana)
+  * `compute_nodes` group → all compute nodes (`red1…red8`, `blue1…blue8`)
+
+* [**ansible.cfg**](./ansible.cfg)
+  Ansible configuration. Sets default inventory and SSH key; disables host key checking for smoother automation.
+
+### Running the playbooks
+
+After reviewing `group_vars/all.yml` and your inventory:
+
+```bash
+# Install Node Exporter on all compute nodes
+ansible-playbook monitoring_clients.yml
+
+# Install Prometheus + Grafana on hpc_master
+ansible-playbook monitoring_server.yml
+```
+
+These playbooks are **idempotent**—you can rerun them any time. If everything is already configured, nothing changes; if something drifted, Ansible fixes it.

@@ -1,0 +1,57 @@
+---
+# Install Node Exporter on all compute nodes
+- name: Install Node Exporter on compute nodes
+  hosts: compute_nodes
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Ensure dependencies
+      ansible.builtin.package:
+        name: wget
+        state: present
+
+    - name: Create node_exporter user
+      ansible.builtin.user:
+        name: "{{  node_exporter_user }}"
+        shell: /usr/sbin/nologin
+        system: true
+        create_home: false
+
+    - name: Download node_exporter archive
+      ansible.builtin.get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+        dest: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+        mode: '0644'
+
+    - name: Unpack node_exporter
+      ansible.builtin.unarchive:
+        src: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+        dest: /tmp
+        remote_src: true
+        creates: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}/node_exporter"
+
+    - name: Install node_exporter binary
+      ansible.builtin.copy:
+        src: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}/node_exporter"
+        dest: "/usr/local/bin/node_exporter"
+        mode: '0755'
+        owner: "{{ node_exporter_user }}"
+        group: "{{ node_exporter_user }}"
+        remote_src: true  
+
+    - name: Create systemd unit for node_exporter
+      ansible.builtin.template:
+        src: templates/node_exporter.service.j2
+        dest: /etc/systemd/system/node_exporter.service
+        mode: '0644'
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Enable and start node_exporter
+      ansible.builtin.systemd:
+        name: node_exporter
+        enabled: true
+        state: started
