@@ -1,0 +1,186 @@
+---
+# 1) Install Node Exporter on all compute nodes
+- name: Install Node Exporter on compute nodes
+  hosts: compute_nodes
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Ensure dependencies
+      ansible.builtin.package:
+        name: wget
+        state: present
+
+    - name: Create node_exporter user
+      ansible.builtin.user:
+        name: "{{  node_exporter_user }}"
+        shell: /usr/sbin/nologin
+        system: true
+        create_home: false
+
+    - name: Download node_exporter archive
+      ansible.builtin.get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+        dest: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+        mode: '0644'
+
+    - name: Unpack node_exporter
+      ansible.builtin.unarchive:
+        src: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+        dest: /tmp
+        remote_src: true
+        creates: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}/node_exporter"
+
+    - name: Install node_exporter binary
+      ansible.builtin.copy:
+        src: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}/node_exporter"
+        dest: "/usr/local/bin/node_exporter"
+        mode: '0755'
+        owner: "{{ node_exporter_user }}"
+        group: "{{ node_exporter_user }}"
+        remote_src: true  
+
+    - name: Create systemd unit for node_exporter
+      ansible.builtin.template:
+        src: templates/node_exporter.service.j2
+        dest: /etc/systemd/system/node_exporter.service
+        mode: '0644'
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Enable and start node_exporter
+      ansible.builtin.systemd:
+        name: node_exporter
+        enabled: true
+        state: started
+
+# 2) Install Prometheus + Grafana on hpc_master
+- name: Install Prometheus and Grafana on hpc_master
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Ensure base packages
+      ansible.builtin.package:
+        name:
+          - wget
+          - gnupg2
+          - software-properties-common
+        state: present
+
+    # ---- Prometheus ----
+    - name: Create prometheus user
+      ansible.builtin.user:
+        name: "{{ prometheus_user }}"
+        shell: /usr/sbin/nologin
+        system: true
+        create_home: false
+
+    - name: Create Prometheus dirs
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ prometheus_user }}"
+        group: "{{ prometheus_user }}"
+        mode: '0755'
+      loop:
+        - "{{ prometheus_config_dir }}"
+        - "{{ prometheus_data_dir }}"
+
+    - name: Download Prometheus archive
+      ansible.builtin.get_url:
+        url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}.tar.gz"
+        dest: "/tmp/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}.tar.gz"
+        mode: '0644'
+
+    - name: Unpack Prometheus
+      ansible.builtin.unarchive:
+        src: "/tmp/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}.tar.gz"
+        dest: /tmp
+        remote_src: true
+        creates: "/tmp/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}/prometheus"
+
+    - name: Install Prometheus binaries
+      ansible.builtin.copy:
+        src: "/tmp/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        mode: '0755'
+        owner: root
+        group: root
+        remote_src: true
+      loop:
+        - prometheus
+        - promtool
+
+    - name: Install Prometheus consoles
+      ansible.builtin.copy:
+        src: "/tmp/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}/{{ item }}"
+        dest: "{{ prometheus_config_dir }}/{{ item }}"
+        owner: "{{ prometheus_user }}"
+        group: "{{ prometheus_user }}"
+        mode: '0755'
+        remote_src: true
+      loop:
+        - consoles
+        - console_libraries
+
+    - name: Render prometheus.yml (scrapes hpc_master:9090 and all compute_nodes:9100)
+      ansible.builtin.template:
+        src: templates/prometheus.yml.j2
+        dest: "{{ prometheus_config_dir }}/prometheus.yml"
+        owner: "{{ prometheus_user }}"
+        group: "{{ prometheus_user }}"
+        mode: '0644'
+
+    - name: Create Prometheus systemd unit
+      ansible.builtin.template:
+        src: templates/prometheus.service.j2
+        dest: /etc/systemd/system/prometheus.service
+        mode: '0644'
+
+    - name: Reload systemd (Prometheus)
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Enable and start Prometheus
+      ansible.builtin.systemd:
+        name: prometheus
+        enabled: true
+        state: started
+
+    # ---- Grafana (updated repo method) ----
+    - name: Install Grafana repo key (keyring)
+      ansible.builtin.shell: |
+        set -e
+        wget -q -O - "{{ grafana_repo_key_url }}" | gpg --dearmor | tee "{{ grafana_keyring_path }}" > /dev/null
+      args:
+        creates: "{{ grafana_keyring_path }}"
+
+    - name: Add Grafana APT repository (signed-by)
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/grafana.list
+        mode: '0644'
+        content: "{{ grafana_repo_line }}\n"
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install Grafana
+      ansible.builtin.apt:
+        name: grafana
+        state: present
+
+    - name: Enable and start Grafana
+      ansible.builtin.systemd:
+        name: grafana-server
+        enabled: true
+        state: started

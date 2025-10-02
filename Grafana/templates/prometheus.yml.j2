@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Scrape Prometheus itself on the login node
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Scrape all compute nodes from inventory
+  - job_name: hpc_cluster_nodes
+    static_configs:
+      - targets:
+{% set targets = [] %}
+{% if groups.get('compute_nodes') %}
+{%   for host in groups['compute_nodes'] %}
+{%     set _ = targets.append((hostvars[host].get('ansible_host', host) ~ ':9100')) %}
+{%   endfor %}
+{% endif %}
+{% for t in targets %}
+          - '{{ t }}'
+{% endfor %}
+{% for extra in prometheus_extra_targets %}
+          - '{{ extra }}'
+{% endfor %}

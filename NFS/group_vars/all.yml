@@ -5,4 +5,4 @@ nfs_export_path: "/mnt/hpc_shared"
 nfs_mount_point: "/mnt/hpc_shared"
 nfs_export_options: "rw,sync,sec=sys,no_root_squash,no_subtree_check"
 nfs_client_mount_opts: "vers=4.2,_netdev,x-systemd.automount,noatime,hard,intr"
-nfs_manage_ufw: true                      # set false if you don't use ufw
+nfs_manage_ufw: false                      # set false if you don't use ufw

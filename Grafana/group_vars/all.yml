@@ -1,0 +1,23 @@
+prometheus_version: "3.4.1"
+prometheus_arch: "linux-arm64"
+
+node_exporter_version: "1.9.1"
+node_exporter_arch: "linux-arm64"
+
+# Add any extra scrape targets here (e.g., hpc_master, login node):
+prometheus_extra_targets:
+  # - "hpc_master:9100"
+  # - "localhost:9100"
+
+# Prometheus main settings
+prometheus_user: "prometheus"
+prometheus_data_dir: "/var/lib/prometheus"
+prometheus_config_dir: "/etc/prometheus"
+
+# Node exporter settings (installed on all nodes)
+node_exporter_user: "node_exporter"
+
+# Grafana settings (installed on hpc_master node)
+grafana_repo_key_url: "https://packages.grafana.com/gpg.key"
+grafana_keyring_path: "/usr/share/keyrings/grafana-archive-keyring.gpg"
+grafana_repo_line: "deb [signed-by=/usr/share/keyrings/grafana-archive-keyring.gpg] https://packages.grafana.com/oss/deb stable main"
