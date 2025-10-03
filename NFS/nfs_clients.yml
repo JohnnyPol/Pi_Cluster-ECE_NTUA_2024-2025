@@ -32,14 +32,3 @@
         fstype: nfs
         opts: "{{ nfs_client_mount_opts }}"
         state: mounted
-
-    - name: Quick write/read test file (optional)
-      copy:
-        dest: "{{ nfs_mount_point }}/ansible_probe_{{ inventory_hostname }}"
-        content: "probe from {{ inventory_hostname }}\n"
-      register: probe_result
-      failed_when: false
-
-    - name: Report probe result
-      debug:
-        msg: "Wrote probe file: {{ probe_result.dest | default('skipped') }}"
