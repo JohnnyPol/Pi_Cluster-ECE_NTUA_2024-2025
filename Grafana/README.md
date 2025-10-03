@@ -8,6 +8,34 @@ Cluster layout:
 
 This setup allows you to track **CPU, memory, disk, and network performance** across the entire cluster from a single Grafana dashboard.
 
+## Table of Contents
+- [Step 1: Update the HPC\_Master Node](#step-1-update-the-hpc_master-node)
+- [Step 2: Install Prometheus on the hpc\_master Node](#step-2-install-prometheus-on-the-hpc_master-node)
+  - [2.1 Create a Prometheus User](#21-create-a-prometheus-user)
+  - [2.2 Create Directories](#22-create-directories)
+  - [2.3 Download Prometheus](#23-download-prometheus)
+  - [2.4 Move Binaries and Configs](#24-move-binaries-and-configs)
+  - [2.5 Create Prometheus Systemd Service](#25-create-prometheus-systemd-service)
+  - [2.6 Start and Enable Prometheus](#26-start-and-enable-prometheus)
+- [Step 3: Install Node Exporter on All Nodes](#step-3-install-node-exporter-on-all-nodes)
+  - [3.1 Download Node Exporter](#31-download-node-exporter)
+  - [3.2 Create a User](#32-create-a-user)
+  - [3.3 Create Systemd Service](#33-create-systemd-service)
+  - [3.4 Configure Prometheus to Scrape All Nodes](#34-configure-prometheus-to-scrape-all-nodes)
+- [Step 4: Install Grafana on the hpc\_master Node](#step-4-install-grafana-on-the-hpc_master-node)
+  - [4.1 Add Grafana Repository](#41-add-grafana-repository)
+  - [4.2 Install Grafana](#42-install-grafana)
+  - [4.3 Start Grafana](#43-start-grafana)
+- [Step 4.4: Access Grafana from Your Laptop](#step-44-access-grafana-from-your-laptop)
+- [Step 5: Connect Grafana to Prometheus](#step-5-connect-grafana-to-prometheus)
+  - [5.1 Add Prometheus as a Data Source](#51-add-prometheus-as-a-data-source)
+  - [5.2 Import a Dashboard](#52-import-a-dashboard)
+- [Step 6: Explore and Customize](#step-6-explore-and-customize)
+- [Automation with Ansible Scripts (Grafana, Prometheus \& Node Exporter)](#automation-with-ansible-scripts-grafana-prometheus--node-exporter)
+  - [Files used in automation](#files-used-in-automation)
+  - [Running the playbooks](#running-the-playbooks)
+
+
 ---
 
 ## Step 1: Update the HPC_Master Node
