@@ -4,18 +4,15 @@
   hosts: localhost
   connection: local
   become: true
-  gather_facts: false
+  gather_facts: true
 
   tasks:
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: true
-
     - name: Ensure base packages
-      ansible.builtin.package:
+      ansible.builtin.apt:
         name:
           - wget
           - gnupg2
+          - apt-transport-https
           - software-properties-common
         state: present
 
@@ -48,7 +45,6 @@
       ansible.builtin.unarchive:
         src: "/tmp/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}.tar.gz"
         dest: /tmp
-        remote_src: true
         creates: "/tmp/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}/prometheus"
 
     - name: Install Prometheus binaries
@@ -62,18 +58,6 @@
       loop:
         - prometheus
         - promtool
-
-    - name: Install Prometheus consoles
-      ansible.builtin.copy:
-        src: "/tmp/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}/{{ item }}"
-        dest: "{{ prometheus_config_dir }}/{{ item }}"
-        owner: "{{ prometheus_user }}"
-        group: "{{ prometheus_user }}"
-        mode: '0755'
-        remote_src: true
-      loop:
-        - consoles
-        - console_libraries
 
     - name: Render prometheus.yml (scrapes hpc_master:9090 and all compute_nodes:9100)
       ansible.builtin.template:

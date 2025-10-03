@@ -242,10 +242,10 @@ Since Grafana is running on **hpc_master**, but your laptop cannot directly reac
 From your **laptop**, run this command:
 
 ```
-ssh -L 3000:hpc_master:3000 login
+ssh -L 3000:master:3000 login
 ```
 
-* `-L 3000:hpc_master:3000` &rarr; forwards your laptop’s port `3000` to `hpc_master:3000` through the login node.
+* `-L 3000:master:3000` &rarr; forwards your laptop’s port `3000` to `master:3000` through the login node.
 * `login` &rarr; the SSH host you normally use to connect to the cluster login node.
 
 Keep this SSH session open.
@@ -301,6 +301,8 @@ You can now:
 * Build custom dashboards for HPC workloads.
 * Set up **alerts** in Grafana (e.g. notify when a node is down or CPU > 90%).
 
+Here is an example of our Dashboard:
+![Grafana Dashboard](./images/grafana_dashboard.png)
 
 ## Automation with Ansible Scripts (Grafana, Prometheus & Node Exporter)
 
@@ -308,7 +310,7 @@ Rolling out monitoring across a Raspberry Pi HPC cluster is tedious to do by han
 
 ### Files used in automation
 
-* [**monitoring_server.yml**](./monitoring_server.yml)
+* [**prometheus_grafana.yml**](./prometheus_grafana.yml)
   Installs and configures **Prometheus** and **Grafana** on **`hpc_master`**:
 
   * Creates Prometheus user, directories, and systemd service
@@ -317,7 +319,7 @@ Rolling out monitoring across a Raspberry Pi HPC cluster is tedious to do by han
   * Adds the **updated Grafana APT repo** (keyring + `signed-by`)
   * Installs and enables `grafana-server`
 
-* [**monitoring_clients.yml**](./monitoring_clients.yml)
+* [**node_exporter.yml**](./node_exporter.yml)
   Installs and configures **Node Exporter** on **all `compute_nodes`**:
 
   * Creates `node_exporter` user and systemd service
@@ -342,8 +344,8 @@ Rolling out monitoring across a Raspberry Pi HPC cluster is tedious to do by han
 * [**hosts.ini**](./hosts.ini)
   The **inventory**:
 
-  * `monitoring` group → **`hpc_master`** (Prometheus + Grafana)
-  * `compute_nodes` group → all compute nodes (`red1…red8`, `blue1…blue8`)
+  * `monitoring` group &rarr; **`hpc_master`** (Prometheus + Grafana)
+  * `compute_nodes` group &rarr; all compute nodes (`red1…red8`, `blue1…blue8`)
 
 * [**ansible.cfg**](./ansible.cfg)
   Ansible configuration. Sets default inventory and SSH key; disables host key checking for smoother automation.
