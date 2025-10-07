@@ -9,31 +9,40 @@ Cluster layout:
 This setup allows you to track **CPU, memory, disk, and network performance** across the entire cluster from a single Grafana dashboard.
 
 ## Table of Contents
-- [Step 1: Update the HPC\_Master Node](#step-1-update-the-hpc_master-node)
-- [Step 2: Install Prometheus on the hpc\_master Node](#step-2-install-prometheus-on-the-hpc_master-node)
-  - [2.1 Create a Prometheus User](#21-create-a-prometheus-user)
-  - [2.2 Create Directories](#22-create-directories)
-  - [2.3 Download Prometheus](#23-download-prometheus)
-  - [2.4 Move Binaries and Configs](#24-move-binaries-and-configs)
-  - [2.5 Create Prometheus Systemd Service](#25-create-prometheus-systemd-service)
-  - [2.6 Start and Enable Prometheus](#26-start-and-enable-prometheus)
-- [Step 3: Install Node Exporter on All Nodes](#step-3-install-node-exporter-on-all-nodes)
-  - [3.1 Download Node Exporter](#31-download-node-exporter)
-  - [3.2 Create a User](#32-create-a-user)
-  - [3.3 Create Systemd Service](#33-create-systemd-service)
-  - [3.4 Configure Prometheus to Scrape All Nodes](#34-configure-prometheus-to-scrape-all-nodes)
-- [Step 4: Install Grafana on the hpc\_master Node](#step-4-install-grafana-on-the-hpc_master-node)
-  - [4.1 Add Grafana Repository](#41-add-grafana-repository)
-  - [4.2 Install Grafana](#42-install-grafana)
-  - [4.3 Start Grafana](#43-start-grafana)
-- [Step 4.4: Access Grafana from Your Laptop](#step-44-access-grafana-from-your-laptop)
-- [Step 5: Connect Grafana to Prometheus](#step-5-connect-grafana-to-prometheus)
-  - [5.1 Add Prometheus as a Data Source](#51-add-prometheus-as-a-data-source)
-  - [5.2 Import a Dashboard](#52-import-a-dashboard)
-- [Step 6: Explore and Customize](#step-6-explore-and-customize)
-- [Automation with Ansible Scripts (Grafana, Prometheus \& Node Exporter)](#automation-with-ansible-scripts-grafana-prometheus--node-exporter)
-  - [Files used in automation](#files-used-in-automation)
-  - [Running the playbooks](#running-the-playbooks)
+- [Monitoring Raspberry Pi HPC Cluster with Prometheus \& Grafana](#monitoring-raspberry-pi-hpc-cluster-with-prometheus--grafana)
+  - [Table of Contents](#table-of-contents)
+  - [Step 1: Update the HPC\_Master Node](#step-1-update-the-hpc_master-node)
+  - [Step 2: Install Prometheus on the hpc\_master Node](#step-2-install-prometheus-on-the-hpc_master-node)
+    - [2.1 Create a Prometheus User](#21-create-a-prometheus-user)
+    - [2.2 Create Directories](#22-create-directories)
+    - [2.3 Download Prometheus](#23-download-prometheus)
+    - [2.4 Move Binaries and Configs](#24-move-binaries-and-configs)
+    - [2.5 Create Prometheus Systemd Service](#25-create-prometheus-systemd-service)
+    - [2.6 Start and Enable Prometheus](#26-start-and-enable-prometheus)
+  - [Step 3: Install Node Exporter on All Nodes](#step-3-install-node-exporter-on-all-nodes)
+    - [3.1 Download Node Exporter](#31-download-node-exporter)
+    - [3.2 Create a User](#32-create-a-user)
+    - [3.3 Create Systemd Service](#33-create-systemd-service)
+    - [3.4 Configure Prometheus to Scrape All Nodes](#34-configure-prometheus-to-scrape-all-nodes)
+  - [Step 4: Install and Configure Alertmanager](#step-4-install-and-configure-alertmanager)
+    - [4.1 Download and Install Alertmanager](#41-download-and-install-alertmanager)
+    - [4.2 Configure Alertmanager](#42-configure-alertmanager)
+    - [4.3 Create the Alertmanager Systemd Service](#43-create-the-alertmanager-systemd-service)
+    - [4.4 Update Prometheus Configuration](#44-update-prometheus-configuration)
+    - [4.5 Add Alert Rules](#45-add-alert-rules)
+    - [4.6 (Optional) Configure Discord Notifications](#46-optional-configure-discord-notifications)
+  - [Step 5: Install Grafana on the hpc\_master Node](#step-5-install-grafana-on-the-hpc_master-node)
+    - [5.1 Add Grafana Repository](#51-add-grafana-repository)
+    - [5.2 Install Grafana](#52-install-grafana)
+    - [5.3 Start Grafana](#53-start-grafana)
+    - [5.4: Access Grafana from Your Laptop](#54-access-grafana-from-your-laptop)
+  - [Step 6: Connect Grafana to Prometheus](#step-6-connect-grafana-to-prometheus)
+    - [6.1 Add Prometheus as a Data Source](#61-add-prometheus-as-a-data-source)
+    - [6.2 Import a Dashboard](#62-import-a-dashboard)
+  - [Step 7: Explore and Customize](#step-7-explore-and-customize)
+  - [Automation with Ansible Scripts (Grafana, Prometheus \& Node Exporter)](#automation-with-ansible-scripts-grafana-prometheus--node-exporter)
+    - [Files used in automation](#files-used-in-automation)
+    - [Running the playbooks](#running-the-playbooks)
 
 
 ---
@@ -232,13 +241,265 @@ sudo systemctl restart prometheus
 
 Prometheus will now scrape metrics from **all compute nodes**.
 
+## Step 4: Install and Configure Alertmanager
+
+**Alertmanager** works alongside Prometheus to handle alert notifications.
+When Prometheus detects a problem (e.g., high CPU usage or node down), it sends alerts to **Alertmanager**, which can then notify you through **email, Discord, Slack, Telegram**, or other channels.
+
+We’ll install **Alertmanager** on the `hpc_master` node — the same one running Prometheus and we will send alerts on our Discord Text Channel.
+
 ---
 
-## Step 4: Install Grafana on the hpc_master Node
+### 4.1 Download and Install Alertmanager
+
+Check [Alertmanager releases](https://prometheus.io/download/#alertmanager) for the latest version.
+As of **October 2025**, the stable release is `v0.28.1`.
+
+Run these commands on the **hpc_master node**:
+
+```
+cd /tmp
+wget https://github.com/prometheus/alertmanager/releases/download/v0.28.1/alertmanager-0.28.1.linux-arm64.tar.gz
+tar xvf alertmanager-0.28.1.linux-arm64.tar.gz
+cd alertmanager-0.28.1.linux-arm64
+```
+
+Copy the binaries and create directories:
+
+```
+sudo cp alertmanager amtool /usr/local/bin/
+sudo mkdir /etc/alertmanager
+sudo mkdir /var/lib/alertmanager
+sudo useradd --no-create-home --shell /bin/false alertmanager
+sudo chown alertmanager:alertmanager /etc/alertmanager /var/lib/alertmanager
+```
+
+---
+
+### 4.2 Configure Alertmanager
+
+Create the main configuration file:
+
+```
+sudo nano /etc/alertmanager/alertmanager.yml
+```
+
+Paste the following minimal example configuration:
+
+```yaml
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: "discord"
+
+receivers:
+  - name: "discord"
+    webhook_configs:
+      - url: "http://127.0.0.1:9095/alert"
+        send_resolved: true
+```
+
+This configuration tells Alertmanager to send all alerts to your local **Discord webhook bridge** (which we’ll configure next) that runs as a service on port `9095`.
+
+You can also use other receivers such as:
+
+* `email_configs`
+* `slack_configs`
+* `telegram_configs`
+* `pagerduty_configs`
+* `webhook_configs`
+* `wechat_configs`
+
+---
+
+### 4.3 Create the Alertmanager Systemd Service
+
+Create a systemd service file:
+
+```
+sudo nano /etc/systemd/system/alertmanager.service
+```
+
+Paste:
+
+```
+[Unit]
+Description=Alertmanager for Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=alertmanager
+Group=alertmanager
+Type=simple
+ExecStart=/usr/local/bin/alertmanager \
+  --config.file=/etc/alertmanager/alertmanager.yml \
+  --storage.path=/var/lib/alertmanager/
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Save and start the service:
+
+```
+sudo systemctl daemon-reload
+sudo systemctl start alertmanager
+sudo systemctl enable alertmanager
+```
+
+Verify it’s running:
+
+```
+systemctl status alertmanager
+```
+
+Alertmanager’s web interface is available at:
+👉 `http://<hpc_master-ip>:9093`
+
+---
+
+### 4.4 Update Prometheus Configuration
+
+Now, connect Prometheus to Alertmanager so it knows where to send alerts.
+
+Edit:
+
+```
+sudo nano /etc/prometheus/prometheus.yml
+```
+
+Find the section:
+
+```yaml
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+```
+
+Replace it with:
+
+```yaml
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - localhost:9093
+```
+
+Save and restart Prometheus:
+
+```
+sudo systemctl restart prometheus
+```
+
+---
+
+### 4.5 Add Alert Rules
+
+Define your alert conditions for Prometheus to evaluate.
+
+Create `/etc/prometheus/alert_rules.yml`:
+
+```
+sudo nano /etc/prometheus/alert_rules.yml
+```
+
+Example:
+
+```yaml
+groups:
+  - name: essential_alerts
+    rules:
+      - alert: NodeDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node {{ $labels.instance }} is down"
+          description: "Prometheus has not received data from {{ $labels.instance }} for over 1 minute."
+
+      - alert: HighCPUUsage
+        expr: avg(rate(node_cpu_seconds_total{mode="system"}[2m])) by (instance) > 0.85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "Average CPU utilization > 85%."
+
+      - alert: HighMemoryUsage
+        expr: node_memory_Active_bytes / node_memory_MemTotal_bytes > 0.85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Memory usage on {{ $labels.instance }}"
+          description: "Memory utilization > 85%."
+```
+
+Tell Prometheus to load this file by ensuring your `/etc/prometheus/prometheus.yml` contains:
+
+```yaml
+rule_files:
+  - "alert_rules.yml"
+```
+
+Then restart Prometheus:
+
+```
+sudo systemctl restart prometheus
+```
+
+---
+
+### 4.6 (Optional) Configure Discord Notifications
+
+If you prefer Discord alerts instead of email or Slack, you can deploy a lightweight **FastAPI-based Discord bridge** that receives webhooks from Alertmanager and posts them silently to your Discord channel.
+
+Example bridge (Python FastAPI):
+
+```python
+import os, requests, textwrap
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+
+WEBHOOK = os.getenv("DISCORD_WEBHOOK_URL")
+app = FastAPI()
+
+def fmt_alert(a):
+    name = a["labels"].get("alertname", "Alert")
+    status = a.get("status", "firing").upper()
+    sev = a["labels"].get("severity", "info")
+    inst = a["labels"].get("instance", "unknown")
+    desc = a["annotations"].get("description", "")
+    return textwrap.dedent(f"""
+    **{name}** ({status})
+    • instance: `{inst}`
+    • severity: `{sev}`
+    {desc}
+    """)
+
+@app.post("/alert")
+async def alert(req: Request):
+    payload = await req.json()
+    alerts = payload.get("alerts", [])
+    for a in alerts:
+        msg = fmt_alert(a)
+        requests.post(WEBHOOK, json={"content": msg, "flags": 4096}, timeout=10)
+    return {"ok": True, "sent": len(alerts)}
+```
+
+Deploy it as a systemd service (e.g., `am-discord.service` on port `9095`), and update `alertmanager.yml` to use its address.
+
+## Step 5: Install Grafana on the hpc_master Node
 
 Grafana will be our visualization tool. Install it only on the **hpc_master node**.
 
-### 4.1 Add Grafana Repository
+### 5.1 Add Grafana Repository
 
 On the hpc_master node add the Grafana Repository according to the official [docs](https://grafana.com/docs/grafana/latest/setup-grafana/installation/debian/):
 
@@ -249,21 +510,21 @@ wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | sudo tee /etc/apt
 echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
 ```
 
-### 4.2 Install Grafana
+### 5.2 Install Grafana
 
 ```
 sudo apt update
 sudo apt install grafana -y
 ```
 
-### 4.3 Start Grafana
+### 5.3 Start Grafana
 
 ```
 sudo systemctl start grafana-server
 sudo systemctl enable grafana-server
 ```
 
-## Step 4.4: Access Grafana from Your Laptop
+### 5.4: Access Grafana from Your Laptop
 
 Since Grafana is running on **hpc_master**, but your laptop cannot directly reach it, you need to use **SSH port forwarding**.
 
@@ -290,9 +551,9 @@ Default credentials:
 
 Grafana will prompt you to change the password after the first login.
 
-## Step 5: Connect Grafana to Prometheus
+## Step 6: Connect Grafana to Prometheus
 
-### 5.1 Add Prometheus as a Data Source
+### 6.1 Add Prometheus as a Data Source
 
 * In Grafana, click the **gear icon** &rarr; *Configuration* &rarr; *Data Sources* &rarr; *Add data source*.
 * Choose **Prometheus**.
@@ -304,7 +565,7 @@ http://localhost:9090
 
 * Click **Save & Test**. You should see "Data source is working."
 
-### 5.2 Import a Dashboard
+### 6.2 Import a Dashboard
 
 * In Grafana, click the **+ icon** &rarr; *Import*.
 * Enter dashboard ID: **1860** (Node Exporter Full).
@@ -315,7 +576,7 @@ Now you’ll see a pre-built dashboard with cluster-wide metrics.
 
 ---
 
-## Step 6: Explore and Customize
+## Step 7: Explore and Customize
 
 At this point you have:
 
@@ -329,12 +590,19 @@ You can now:
 * Build custom dashboards for HPC workloads.
 * Set up **alerts** in Grafana (e.g. notify when a node is down or CPU > 90%).
 
-Here is an example of our Dashboard:
+Here is an example of the Dashboard we imported [Node Exporter Full](https://grafana.com/grafana/dashboards/1860-node-exporter-full/):
 ![Grafana Dashboard](./images/grafana_dashboard.png)
 
 ## Automation with Ansible Scripts (Grafana, Prometheus & Node Exporter)
 
 Rolling out monitoring across a Raspberry Pi HPC cluster is tedious to do by hand. To keep things consistent and repeatable, we use **Ansible playbooks** to automate installing **Prometheus + Grafana** on the **`hpc_master`** and **Node Exporter** on all **compute nodes**.
+
+Excellent — since your cluster automation now also includes **Alertmanager** and the **Discord bridge service**, we’ll extend the “Files used in automation” section to reflect that.
+
+Here’s your updated section (ready to replace the existing one).
+It keeps the exact tone, format, and Markdown style as before — just expanded to include all Alertmanager components and templates.
+
+---
 
 ### Files used in automation
 
@@ -346,6 +614,8 @@ Rolling out monitoring across a Raspberry Pi HPC cluster is tedious to do by han
   * Renders `prometheus.yml` to scrape all compute nodes (generated from inventory)
   * Adds the **updated Grafana APT repo** (keyring + `signed-by`)
   * Installs and enables `grafana-server`
+  * Deploys **Alertmanager** (binaries, config, service)
+  * Optionally installs the **Discord alert bridge** (FastAPI-based webhook forwarder)
 
 * [**node_exporter.yml**](./node_exporter.yml)
   Installs and configures **Node Exporter** on **all `compute_nodes`**:
@@ -355,10 +625,12 @@ Rolling out monitoring across a Raspberry Pi HPC cluster is tedious to do by han
   * Enables port `9100` service
 
 * [**group_vars/all.yml**](./group_vars/all.yml)
-  Central **variables** for both playbooks (versions, architectures, paths, optional extra scrape targets, Grafana repo key settings).
+  Central **variables** for all playbooks (Prometheus, Grafana, Node Exporter, and Alertmanager).
 
-  * Adjust `*_arch` to `linux-arm64` or `linux-armv7` depending on your Pi OS
-  * Add any **extra Prometheus targets** (e.g., `hpc_master:9100`) if you also run Node Exporter on the master
+  * Versions and architecture (`linux-arm64` / `linux-armv7`)
+  * Prometheus scrape configuration and targets
+  * Alertmanager and Discord bridge settings (`alertmanager_version`, `discord_forwarder_port`, etc.)
+  * Grafana APT repository keyring path and version
 
 * [**templates/prometheus.service.j2**](./templates/prometheus.service.j2)
   Systemd unit template for Prometheus on `hpc_master`.
@@ -367,16 +639,37 @@ Rolling out monitoring across a Raspberry Pi HPC cluster is tedious to do by han
   Systemd unit template for Node Exporter on compute nodes.
 
 * [**templates/prometheus.yml.j2**](./templates/prometheus.yml.j2)
-  Prometheus config template that **auto-generates scrape targets** from the `compute_nodes` group in your inventory (plus any `prometheus_extra_targets`).
+  Prometheus configuration template that:
+
+  * Auto-generates scrape targets from the `compute_nodes` group in your inventory
+  * Includes the `alerting:` section to forward alerts to Alertmanager
+
+* [**templates/alertmanager.service.j2**](./templates/alertmanager.service.j2)
+  Systemd unit template for **Alertmanager**, managing the `/usr/local/bin/alertmanager` process and `/etc/alertmanager/alertmanager.yml`.
+
+* [**templates/alertmanager.yml.j2**](./templates/alertmanager.yml.j2)
+  Alertmanager configuration template.
+  Defines global settings, routing rules, and receivers (e.g., **Discord**, **email**, or **Slack**).
+
+* [**templates/am-discord.service.j2**](./templates/am-discord.service.j2)
+  Systemd unit template for the optional **Discord alert bridge** running on FastAPI.
+  Used to silently forward Alertmanager notifications to a Discord channel via webhook.
+
+* [**files/discord_bridge.py**](./files/discord_bridge.py)
+  The lightweight **FastAPI webhook bridge** that receives alerts from Alertmanager and posts formatted, silent messages to Discord (`flags: 4096`).
+
+* [**templates/alert_rules.yml.j2**](./templates/alert_rules.yml.j2)
+  Defines Prometheus alert rules (NodeDown, HighCPUUsage, HighMemoryUsage, LowDiskSpace, HighTemperature, etc.).
+  These are automatically placed under `/etc/prometheus/alert_rules.yml`.
 
 * [**hosts.ini**](./hosts.ini)
-  The **inventory**:
+  The **inventory** file defining host groups:
 
-  * `monitoring` group &rarr; **`hpc_master`** (Prometheus + Grafana)
+  * `monitoring` group &rarr; **`hpc_master`** (Prometheus, Grafana, Alertmanager)
   * `compute_nodes` group &rarr; all compute nodes (`red1…red8`, `blue1…blue8`)
 
 * [**ansible.cfg**](./ansible.cfg)
-  Ansible configuration. Sets default inventory and SSH key; disables host key checking for smoother automation.
+  Ansible configuration. Sets default inventory, SSH private key, and disables host key checking for smoother automation.
 
 ### Running the playbooks
 
