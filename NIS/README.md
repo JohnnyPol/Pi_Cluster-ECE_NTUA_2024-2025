@@ -1,11 +1,11 @@
-# 🔧 NIS Server/Client Setup Guide for HPC Cluster
+# NIS Server/Client Setup Guide for HPC Cluster
 
 This guide describes how to set up a **Network Information Service (NIS)** in a Linux-based HPC (High Performance Computing) cluster built with Raspberry Pis.
 It explains **why NIS is required**, how to **configure both server and clients**, and provides **brief reasoning for each step** of the installation.
 
 ---
 
-## 🧭 Why We Use NIS in Our HPC Cluster
+## Why We Use NIS in Our HPC Cluster
 
 In an HPC cluster managed by **Slurm**, we have multiple nodes (login, hpc_master, and compute nodes).
 All nodes must **recognize the same users and groups** — otherwise, jobs submitted by a user on the login node won’t run correctly on compute nodes, because the UID/GID won’t match.
@@ -26,203 +26,242 @@ Without NIS, you’d need to manually synchronize `/etc/passwd` and `/etc/group`
 
 ### **Step 1: Install Required Packages**
 
-**Command:**
+Install `rpcbind` for **RPC communication** and `nis` (NIS service tools) on both the server and all clients.
+
+**What is RPC communication?**
+RPC stands for **Remote Procedure Call**.
+It’s a protocol that allows one machine to request a service or function execution on another machine — in this case, how NIS communicates between the server and clients.
 
 ```bash
 sudo apt-get install rpcbind nis -y
 ```
 
-**Explanation:**
-Installs `rpcbind` (for RPC communication) and `nis` (NIS service tools) on both server and clients.
-RPC (Remote Procedure Call) is required since NIS is built on RPC.
-
 ---
 
 ### **Step 2: Set the NIS Domain Name**
 
-**Command:**
+Defines a logical **NIS domain name** that groups all machines into the same identity namespace.
+All nodes in the cluster must share the same NIS domain name.
+`/etc/defaultdomain` ensures that this name is remembered after reboot.
+
+**What is a NIS domain name?**
+It’s not related to DNS — it’s simply an internal label that identifies which NIS network a machine belongs to (like a cluster name).
 
 ```bash
 sudo nisdomainname hpcnisdom
 echo "hpcnisdom" | sudo tee /etc/defaultdomain
 ```
 
-**Explanation:**
-Defines a logical **NIS domain name** (`hpcnisdom`) that groups all machines in the same identity namespace.
-`/etc/defaultdomain` ensures this name persists across reboots.
+Excellent — here’s the **rewritten version of Steps 3 through the end**, perfectly matching the **style and logic flow** of Steps 1 and 2 (definition → why → commands).
+Everything is consistent in tone, structure, and formatting.
 
 ---
 
-### **Step 3: Configure `/etc/yp.conf`**
+### **Step 3: Configure `/etc/yp.conf` on Clients**
+This file tells the client which **NIS domain** it belongs to and which **server** it should contact to obtain user and group information.
 
-**Command (on Clients):**
+**What is `/etc/yp.conf`?**
+It’s the main NIS client configuration file. It defines the NIS domain name and the address of the NIS server that provides the user databases.
 
 ```bash
 echo "domain hpcnisdom server 192.168.2.117" | sudo tee -a /etc/yp.conf
 echo "ypserver 192.168.2.117" | sudo tee -a /etc/yp.conf
 ```
-
-**Explanation:**
-Tells the client which NIS domain it belongs to and which machine (IP of the login/master node) is its **NIS server**.
+Here we associate the domain `hpcnisdom` with the NIS server at IP `192.168.2.117`.
+This allows each client node to know where to fetch the centralized user information from.
 
 ---
 
 ### **Step 4: Allow RPC Access**
 
-**Command:**
+NIS uses **RPC (Remote Procedure Call)** to communicate between the server and clients.
+We must allow the `rpcbind` service (which manages RPC connections) to accept requests from cluster nodes.
 
 ```bash
 echo "rpcbind: ALL" | sudo tee -a /etc/hosts.allow
 ```
-
-**Explanation:**
-Ensures the `rpcbind` service accepts incoming connections from cluster nodes — required for NIS communication.
+This line ensures that RPC requests from all cluster nodes are permitted.
+In a controlled cluster network, this is safe and necessary for NIS communication.
 
 ---
 
-### **Step 5: Fix `_rpc` Missing User (If Needed)**
+### **Step 5: Fix `_rpc` Missing User (if needed)**
 
-**Commands:**
+Sometimes the `rpcbind` service fails to start because the system user `_rpc` is missing.
+
+**Who is `_rpc`?**
+It’s a system account used internally by the RPC subsystem — it has no login access and exists only so `rpcbind` can drop privileges securely.
+
+If you see an error like:
+
+```
+rpcbind[358]: cannot get uid of "_rpc": Success
+```
+
+create the missing user and restart the services:
 
 ```bash
 sudo useradd --system --no-create-home --shell /usr/sbin/nologin _rpc
 sudo systemctl restart rpcbind
 sudo systemctl restart ypbind
 ```
-
-**Explanation:**
-Sometimes `rpcbind` fails if the `_rpc` system user is missing.
-This creates it and restarts the related services to restore functionality.
+This creates the required system account and restarts the RPC services so that NIS can function normally.
 
 ---
 
-### **Step 6: Enable NIS Maps on Server**
+### **Step 6: Enable NIS Maps on the Server**
 
-**Server Configuration:**
+On the NIS server, we must enable and initialize the database that holds all user and group information — called **NIS maps**.
+
+**What are NIS maps?**
+They are databases generated from files like `/etc/passwd`, `/etc/group`, and `/etc/shadow`, which store user and authentication data distributed to clients.
+
+Edit the NIS configuration file and set the master mode:
 
 ```bash
-NISMASTER=YES
+sudo sed -i 's/^NISSERVER=.*$/NISSERVER=master/' /etc/default/nis
+```
+
+Then set the NIS domain and start the NIS service:
+
+```bash
 sudo nisdomainname hpcnisdom
 sudo systemctl restart ypserv
 ```
-
-**Explanation:**
-Marks this node as the **master NIS server**, responsible for generating and distributing the NIS database ("maps") to clients.
+This designates the server as the **master NIS host**, responsible for building and serving the user database to all clients in the `hpcnisdom` domain.
 
 ---
 
-### **Step 7: Create a Shared User**
+### **Step 7: Create a Shared User on the Server**
 
-**Server Command:**
+We’ll now create a user that all nodes will recognize through NIS.
+
+**Why do this?**
+Creating a shared account ensures that the same UID and GID exist across all machines.
+Slurm requires consistent user IDs to schedule and execute jobs properly on compute nodes.
 
 ```bash
 sudo useradd -m -u 1100 -s /bin/bash shareduser
 sudo passwd shareduser
 sudo usermod -aG sudo shareduser
-sudo make -C /var/yp
 ```
 
-**Explanation:**
-Creates a test user with a consistent UID (e.g., 1100) that will exist on all nodes through NIS.
-After creation, the `make` command regenerates the NIS maps so clients see the new user.
+After adding the user, rebuild the NIS maps so the clients see it:
+
+```bash
+sudo make -C /var/yp
+```
+This process adds the new account to the NIS databases and regenerates them under `/var/yp`, making the user available cluster-wide.
 
 ---
 
-### **Step 8: Modify `/etc/nsswitch.conf` (on Client)**
+### **Step 8: Modify `/etc/nsswitch.conf` on Clients**
 
-**Configuration Example:**
+This file defines how the system looks up user and group information.
+We add `nis` to instruct the system to check the NIS server in addition to local files.
+
+**What is `nsswitch.conf`?**
+It’s the **Name Service Switch** configuration file — it controls where the system looks for names and identities (local files, DNS, NIS, etc.).
 
 ```ini
 passwd:         files nis
 group:          files nis
 shadow:         files nis
-```
 
-**Explanation:**
-Tells the system to check **local files first**, then **NIS** for user, group, and authentication data.
-This integrates NIS into the system’s normal lookup mechanism.
+hosts:          files dns
+networks:       files
+
+protocols:      db files
+services:       db files
+ethers:         db files
+rpc:            db files
+
+netgroup:       nis
+```
+Now, when a user logs in, the system first checks local accounts, then consults NIS if the user isn’t found locally.
 
 ---
 
 ### **Step 9: Allow NIS Lookups (Compatibility)**
 
-**Command:**
+Some utilities require special lines in `/etc/passwd`, `/etc/group`, and `/etc/shadow` to merge local and NIS users.
+
+**What do these entries do?**
+They tell the system to include all accounts defined in the NIS database after the local entries.
 
 ```bash
 sudo echo '+::::::'   | sudo tee -a /etc/passwd
 sudo echo '+:::'      | sudo tee -a /etc/group
 sudo echo '+::::::::' | sudo tee -a /etc/shadow
 ```
-
-**Explanation:**
-Allows NIS to append entries from the NIS maps into the system’s account database — a classic compatibility requirement for older NIS clients.
+These plus-sign entries enable compatibility with the NIS naming system, ensuring that NIS-managed users appear in system commands like `getent passwd`.
 
 ---
 
-### **Step 10: (Optional) Password-less sudo for Shared User**
+### **Step 10: (Optional) Enable Password-less sudo for Shared User**
 
-**Command:**
+If you want the shared user to execute administrative commands without entering a password, you can modify `/etc/sudoers`.
+
+**Why might this be useful?**
+In a small, secure HPC environment, this simplifies management and automation — for example, deploying scripts across nodes without user interaction.
 
 ```bash
 echo "shareduser ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers
 ```
-
-**Explanation:**
-Gives the shared user administrative access across nodes without entering a password — optional but convenient for cluster management/testing.
-
----
-
-## ✅ Final Checks
-
-1. **Confirm domain name:**
-
-   ```bash
-   domainname
-   # → hpcnisdom
-   ```
-2. **Verify NIS binding:**
-
-   ```bash
-   ypwhich
-   # → 192.168.2.117 (your NIS server)
-   ```
-3. **Check available users (on server):**
-
-   ```bash
-   ypcat passwd
-   ```
+This grants `shareduser` full administrative rights without password prompts.
+Use it only in trusted environments.
 
 ---
 
-## 🔄 Ongoing Maintenance
+### **Step 11: Final Checks**
 
-When you create or delete users on the NIS server, always run:
+Finally, confirm that NIS is correctly configured and synchronized between server and clients.
+
+**Check the current NIS domain:**
+
+```bash
+domainname
+```
+
+Expected output:
+
+```
+hpcnisdom
+```
+
+**Check which server the client is bound to:**
+
+```bash
+ypwhich
+```
+
+Expected output:
+
+```
+192.168.2.117
+```
+
+**Check available NIS users (on server):**
+
+```bash
+ypcat passwd
+```
+If all commands return the expected results, your NIS setup is complete and functioning correctly across the cluster.
+
+---
+
+### **Step 12: Maintenance and Firewall Notes**
+
+Whenever you create, delete, or modify users on the NIS server, update the maps with:
 
 ```bash
 sudo make -C /var/yp
 ```
 
-to rebuild and distribute the updated maps.
-
-If you have a firewall enabled (UFW), ensure NIS and RPC ports are open — or disable UFW during setup:
+If you’re using a firewall (e.g., UFW), ensure NIS and RPC ports are open or disable the firewall temporarily during setup:
 
 ```bash
 sudo ufw disable
 ```
-
----
-
-## 🧩 Summary
-
-| Component             | Role                                   | Why It Matters                                           |
-| --------------------- | -------------------------------------- | -------------------------------------------------------- |
-| **NIS Server**        | Central database of users/groups       | Ensures consistent identity management across cluster    |
-| **NIS Clients**       | Fetch user info from server            | Allows Slurm jobs to execute under correct user context  |
-| **rpcbind**           | Handles NIS communication              | Required for NIS to function via RPC                     |
-| **nsswitch.conf**     | Integrates NIS into system lookups     | Enables transparent authentication via NIS               |
-| **Slurm Integration** | Uses same UID/GID mapping on all nodes | Prevents permission mismatches and job submission errors |
-
----
-
-Would you like me to add a **short section describing how NIS integrates specifically with Slurm’s authentication (UID consistency, job submission, and accounting)**?
-That would make the guide even more complete for HPC documentation.
+NIS depends on dynamically assigned ports via `rpcbind`.
+If blocked by a firewall, clients won’t be able to communicate with the server.
