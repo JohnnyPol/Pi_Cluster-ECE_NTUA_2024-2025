@@ -21,3 +21,8 @@ node_exporter_user: "node_exporter"
 grafana_repo_key_url: "https://packages.grafana.com/gpg.key"
 grafana_keyring_path: "/usr/share/keyrings/grafana-archive-keyring.gpg"
 grafana_repo_line: "deb [signed-by=/usr/share/keyrings/grafana-archive-keyring.gpg] https://packages.grafana.com/oss/deb stable main"
+
+# Discord Alerting settings
+discord_webhook_url: "https://discord.com/api/webhooks/XXX/YYY"  # Replace with your actual Discord webhook URL
+discord_forwarder_bind: "127.0.0.1"
+discord_forwarder_port: 9095

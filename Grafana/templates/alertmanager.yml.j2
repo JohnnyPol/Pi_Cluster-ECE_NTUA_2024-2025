@@ -1,0 +1,15 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: discord
+  group_by: ['alertname', 'instance']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 3h
+
+receivers:
+  - name: discord
+    webhook_configs:
+      - url: "http://{{ discord_forwarder_bind }}:{{ discord_forwarder_port }}/alert"
+        send_resolved: true

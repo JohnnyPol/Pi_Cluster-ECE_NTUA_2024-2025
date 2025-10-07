@@ -54,7 +54,6 @@
         mode: '0755'
         owner: root
         group: root
-        remote_src: true
       loop:
         - prometheus
         - promtool
@@ -82,6 +81,146 @@
         name: prometheus
         enabled: true
         state: started
+
+    # ---- Alertmanager (v0.28.1, ARM64) ----
+    - name: Ensure base deps for Alertmanager
+      ansible.builtin.apt:
+        name:
+          - wget
+          - tar
+          - ca-certificates
+        state: present
+        update_cache: true
+
+    - name: Create alertmanager user and dirs
+      ansible.builtin.user:
+        name: alertmanager
+        shell: /usr/sbin/nologin
+        system: true
+        create_home: false
+
+    - name: Create Alertmanager config and data dirs
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: alertmanager
+        group: alertmanager
+        mode: '0755'
+      loop:
+        - /etc/alertmanager
+        - /var/lib/alertmanager
+
+    - name: Download Alertmanager archive (v0.28.1, arm64)
+      ansible.builtin.get_url:
+        # Here change the URL to the version you want to download
+        url: "https://github.com/prometheus/alertmanager/releases/download/v0.28.1/alertmanager-0.28.1.linux-arm64.tar.gz"
+        dest: "/tmp/alertmanager-0.28.1.linux-arm64.tar.gz"
+        mode: '0644'
+      register: am_dl
+      retries: 5
+      delay: 5
+      until: am_dl is succeeded
+
+    - name: Unpack Alertmanager
+      ansible.builtin.unarchive:
+        src: "/tmp/alertmanager-0.28.1.linux-arm64.tar.gz"
+        dest: /tmp
+        creates: "/tmp/alertmanager-0.28.1.linux-arm64/alertmanager"
+
+    - name: Install Alertmanager binaries
+      ansible.builtin.copy:
+        src: "/tmp/alertmanager-0.28.1.linux-arm64/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        mode: '0755'
+        owner: root
+        group: root
+      loop:
+        - alertmanager
+        - amtool
+
+    - name: Render /etc/alertmanager/alertmanager.yml
+      ansible.builtin.template:
+        src: templates/alertmanager.yml.j2
+        dest: /etc/alertmanager/alertmanager.yml
+        owner: alertmanager
+        group: alertmanager
+        mode: '0644'
+      notify: Restart Alertmanager
+
+    - name: Create Alertmanager systemd unit
+      ansible.builtin.template:
+        src: templates/alertmanager.service.j2
+        dest: /etc/systemd/system/alertmanager.service
+        mode: '0644'
+      notify:
+        - Daemon reload
+        - Restart Alertmanager
+
+    - name: Enable and start Alertmanager
+      ansible.builtin.systemd:
+        name: alertmanager
+        enabled: true
+        state: started
+
+    # (Optional) bounce Prometheus if you just changed its alerting config
+    - name: Restart Prometheus (optional if config updated)
+      ansible.builtin.systemd:
+        name: prometheus
+        state: restarted
+      when: false  # flip to true if you changed /etc/prometheus/prometheus.yml this run
+
+    # ---- Alertmanager -> Discord bridge ----
+    - name: Ensure Python runtime for bridge
+      ansible.builtin.apt:
+        name:
+          - python3
+          - python3-venv
+        state: present
+        update_cache: true
+
+    - name: Create app directory
+      ansible.builtin.file:
+        path: /opt/am-discord
+        state: directory
+        mode: "0755"
+
+    - name: Create venv
+      ansible.builtin.command: python3 -m venv /opt/am-discord/venv
+      args:
+        creates: /opt/am-discord/venv/bin/activate
+
+    - name: Install Python deps
+      ansible.builtin.shell: |
+        /opt/am-discord/venv/bin/pip install --upgrade pip
+        /opt/am-discord/venv/bin/pip install fastapi uvicorn requests
+      args:
+        creates: /opt/am-discord/venv/bin/uvicorn
+
+    - name: Deploy bridge app
+      ansible.builtin.template:
+        src: templates/am_discord_app.py.j2
+        dest: /opt/am-discord/app.py
+        mode: "0644"
+
+    - name: Create service env file
+      ansible.builtin.copy:
+        dest: /opt/am-discord/.env
+        mode: "0600"
+        content: |
+          DISCORD_WEBHOOK_URL={{ discord_webhook_url }}
+
+    - name: Systemd unit for bridge
+      ansible.builtin.template:
+        src: templates/am-discord.service.j2
+        dest: /etc/systemd/system/am-discord.service
+        mode: "0644"
+
+    - name: Start/enable bridge
+      ansible.builtin.systemd:
+        name: am-discord
+        enabled: true
+        state: started
+
 
     # ---- Grafana (updated repo method) ----
     - name: Install Grafana repo key (keyring)
@@ -111,3 +250,13 @@
         name: grafana-server
         enabled: true
         state: started
+
+  handlers:
+    - name: Daemon reload
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Restart Alertmanager
+      ansible.builtin.systemd:
+        name: alertmanager
+        state: restarted

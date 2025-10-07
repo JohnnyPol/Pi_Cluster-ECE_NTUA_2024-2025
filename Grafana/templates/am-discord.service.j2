@@ -1,0 +1,16 @@
+[Unit]
+Description=Alertmanager -> Discord forwarder
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/am-discord
+EnvironmentFile=/opt/am-discord/.env
+ExecStart=/opt/am-discord/venv/bin/uvicorn app:app --host {{ discord_forwarder_bind }} --port {{ discord_forwarder_port }}
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

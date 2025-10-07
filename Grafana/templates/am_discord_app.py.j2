@@ -1,0 +1,44 @@
+def fmt_embed(a):
+    status = a.get("status", "firing")
+    labels = a.get("labels", {})
+    ann = a.get("annotations", {})
+    name = labels.get("alertname", "Alert")
+    inst = labels.get("instance", "unknown")
+    sev = labels.get("severity", "info")
+    summary = ann.get("summary") or ann.get("message") or ""
+    desc = ann.get("description") or ""
+
+    color = {
+        "critical": 0xE53935,  # red
+        "warning": 0xFDD835,   # yellow
+        "info": 0x1E88E5,      # blue
+        "test": 0x8E24AA       # purple
+    }.get(sev, 0x808080)
+
+    return {
+        "title": f"{name} ({status.upper()})",
+        "description": f"**Instance:** `{inst}`\n**Severity:** `{sev}`\n\n{summary}\n{desc}",
+        "color": color
+    }
+
+@app.post("/alert")
+async def alert(req: Request):
+    if not WEBHOOK:
+        return JSONResponse({"error": "DISCORD_WEBHOOK_URL not set"}, status_code=500)
+    payload = await req.json()
+    alerts = payload.get("alerts", [])
+    if not alerts:
+        return JSONResponse({"ok": True, "note": "no alerts in payload"})
+
+    for a in alerts:
+        embed = fmt_embed(a)
+        r = requests.post(
+            WEBHOOK,
+            json={
+                "embeds": [embed],
+                "flags": 4096  # silent
+            },
+            timeout=10
+        )
+        r.raise_for_status()
+    return {"ok": True, "sent": len(alerts)}
