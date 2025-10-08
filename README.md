@@ -1,132 +1,93 @@
-# Pi_Cluster-ECE_NTUA_2024-2025
+# Pi_Cluster-ECE_NTUA_2024-2025  
 
-```ssh -p 4444 ubuntu@147.102.3.83```
+## Description  
+This repository documents the full setup, configuration, and automation of an **HPC (High Performance Computing) cluster** built using **Raspberry Pi boards** by students of the **School of Electrical and Computer Engineering, NTUA (2024–2025)**.  
 
-## NFS Setup
-Following [this](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-20-04) tutorial
-###  STEP 1: Install NFS Server on the Login Node
-```bash
-sudo apt update
-sudo apt install nfs-kernel-server
-```
-### STEP 2: Create a Shared Directory
-Choose or create the directory you want to share (e.g., /mnt/hpc_shared):
+The project’s primary goal is to **design a scalable, educational, and fully functional HPC environment** using low-cost hardware. The cluster supports:
+- **Centralized user and resource management** (via NIS, NFS, SLURM)
+- **Automated provisioning** and configuration (via Ansible)
+- **Network booting** for stateless worker nodes (via PXE)
+- **Real-time monitoring and visualization** (via Prometheus + Grafana)
 
-```bash
-sudo mkdir -p /mnt/shared
-sudo chown nobody:nogroup /mnt/shared
-sudo chmod 777 /mnt/shared  # or adjust permissions as needed
-```
+The repository is modular: each subsystem has its own configuration and detailed guide within a dedicated folder.
 
-### STEP 3: Configure /etc/exports
-Edit the file:
-```bash
-sudo nano /etc/exports
-```
-Add this line:
-```bash
-/mnt/shared 192.168.2.0/24(rw,sync,no_subtree_check,no_root_squash)
-```
-Explanation:
+---
 
-- `/mnt/shared` → The folder you're sharing
-- `192.168.2.96/27` → IP range for compute nodes (adjust if needed)
-- `rw` → Read and write access
-- `sync` → Writes are flushed immediately (safer)
-- `no_subtree_check` → Improves performance
-- `no_root_squash` → Allows root on clients to act as root
+## Architecture  
+Our team has developed a high-performance computing (HPC) cluster using 18 Raspberry Pi 4 devices. The cluster is composed of:
 
-### STEP 4: Export and Start NFS Server
-```bash
-sudo exportfs -a
-sudo systemctl restart nfs-kernel-server
-```
-Confirm it's running:
-```bash
-sudo systemctl status nfs-kernel-server
-```
-### Step 5: Set Up NFS Clients on the Compute Nodes
-Repeat this on each node (use Ansible preferably).
+- **16 worker nodes (clients)**
+- **1 master node**
+- **1 login node**
 
-1. Install NFS client:
-```bash
-sudo apt update
-sudo apt install nfs-common
-```
-2. Create the mount point:
-```bash
-sudo mkdir -p /mnt/hpc_shared
-```
-3. Mount the NFS share:
-```bash
-sudo mount 192.168.2.1:/mnt/hpc_shared /mnt/shared
-```
-Test that it works:
+The worker nodes are splitted in two different teams(each one of 8 pis) with names red and blue.
 
-### STEP 6: Make It Persistent on Reboot 
-On each compute node, edit /etc/fstab:
-```bash
-sudo nano /etc/fstab
-```
-Add:
-```bash
-192.168.2.X:/mnt/shared /mnt/shared nfs defaults 0 0
-```
+**Key characteristics:**
+- **OS:** Raspberry Pi OS (64-bit, Lite)
+- **Networking:** Static IP addressing, SSH communication  
+- **Boot method:** PXE over Ethernet (diskless workers)  
+- **Shared storage:** NFS mounted home and shared directories  
+- **User management:** Centralized via NIS  
+- **Job scheduling:** SLURM with Munge authentication and MPI integration  
+- **Monitoring:** Prometheus, Node Exporter, and Grafana dashboard  
 
-## Deployment Diagram 
-Following the steps of [this](https://www.geeksforgeeks.org/deployment-diagram-unified-modeling-languageuml/) article
+---
 
-## Links that may be useful and we may need to reference
-[Git Repository Similar Project](https://github.com/projectRaspberry/wipi) <br>
-[Article for Slurm](https://www.howtoraspberry.com/2022/03/how-to-build-an-hpc-high-performance-cluster-with-raspberry-pi-computers/) <br>
-[Another Article for Slurm ](https://medium.com/@hghcomphys/building-slurm-hpc-cluster-with-raspberry-pis-step-by-step-guide-ae84a58692d5)<br>
-[PDF of HPC Cluster Documentation](https://wr.informatik.uni-hamburg.de/_media/teaching/sommersemester_2021/ps-21_rasperry-pi-cluster.pdf) <br>
-[PDF Slides (Probably not Useful)](https://archive.fosdem.org/2020/schedule/event/rpi_cluster/attachments/slides/3635/export/events/attachments/rpi_cluster/slides/3635/Introducing_HPC_with_a_Raspberry_Pi_Cluster.pdf) <br> 
-[Article for NFS](https://www.howtoraspberry.com/2020/10/how-to-make-network-shared-storage-with-a-raspberry/) <br>
-[Article for the Cluster Setup](https://jackyko1991.github.io/journal/Cluster-Setup-2.html) <br>
-[Another Article for Cluster](https://glmdev.medium.com/building-a-raspberry-pi-cluster-784f0df9afbd) <br>
-[Slurm Documentation](https://slurm.schedmd.com/documentation.html) <br>
-[Useful YouTube Video for Slurm](https://www.youtube.com/watch?v=YZbRnrfECfo) <br>
-[Slurm Installation Repository Tutorial](https://github.com/ReverseSage/Slurm-ubuntu-20.04.1) <br>
-[Slurm Configuration Generator Tool](https://slurm.schedmd.com/configurator.html) <br>
+## Netboot (PXE Boot)  
+Worker nodes are configured to boot entirely from the network using **PXE (Preboot Execution Environment)**.  
+This allows **diskless booting**, centralized system updates, and simplified node management.  
 
+[See detailed setup](./PXE/README.md)
 
-## Slurm setup (small specification so we don't forget)
-1. Install chrony instead of NTP in every node for time synchronization
-```bash
-sudo apt update
-sudo apt install chrony
-```
-2. Edited the `/etc/chrony/chrony.conf` file and added these lines:
-In hpc_master:
-```bash
-allow 192.168.2.0/24
+---
 
-# Default Ubuntu NTP servers are okay
-server ntp.ubuntu.com iburst
+## NFS  
+The **Network File System (NFS)** provides a shared filesystem across all nodes.  
+It enables users to access the same home directories, binaries, and datasets from any node, ensuring a consistent environment.  
 
-local stratum 10
-```
-In worker nodes first comment out every line starting with `pool` or `server` and then:
-```bash
-# Use master Pi as NTP server
-server 192.168.2.117 iburst
-```
-3. In every node restart and enable the chrony service (first for hpc_master):
-```bash
-systemctl restart chrony
-systemctl enable chrony
-```
-4. Run `chronyc sources`, you should get the below results:
+[See detailed setup](./NFS/README.md)
 
-In hpc_master:
-![Screenshot from 2025-04-09 17-49-46](https://github.com/user-attachments/assets/8fbb0299-b3a3-4e4c-9dc1-1bf6f809df82)
+---
 
-In worker nodes:
-![Screenshot from 2025-04-09 17-49-32](https://github.com/user-attachments/assets/7d3ce405-c260-4d62-b129-59c6d04ecf9f)
+## NIS  
+The **Network Information Service (NIS)** offers centralized authentication and user management.  
+Users defined on the master node can log into any worker node seamlessly, maintaining unified credentials and permissions.  
 
-## Grafana & Prometheus & Node Exporter
-[Installation Tutorial](https://tecadmin.net/how-to-setup-prometheus-and-grafana-on-ubuntu/)
+[See detailed setup](./NIS/README.md)
 
+---
 
+## SLURM  
+**SLURM (Simple Linux Utility for Resource Management)** handles job scheduling and workload management across the cluster.  
+It integrates with:
+- **Munge** for node authentication  
+- **MariaDB** for job accounting  
+- **MPI** for distributed parallel processing  
+
+[See detailed setup](./SLURM/README.md)
+
+---
+
+## Grafana / Prometheus & Node Exporters  
+The monitoring stack collects and visualizes metrics from all nodes.  
+- **Prometheus**: scrapes metrics from Node Exporters  
+- **Node Exporters**: report CPU, memory, network, and disk statistics  
+- **Grafana**: provides dashboards and visualization panels for real-time monitoring and alerting  
+
+[See detailed setup](./Monitoring/README.md)
+
+---
+
+## NAS Benchmarks  
+This section is reserved for **future benchmarking and performance evaluation** of the shared network storage (NFS/NAS).  
+Tests will include throughput, latency, and scalability metrics under different workloads.
+
+---
+
+## Troubleshooting  
+Common issues, log references, and recovery steps are collected in a dedicated troubleshooting guide covering all subsystems (PXE, NFS, NIS, SLURM, Monitoring).  
+
+[See troubleshooting guide](./Troubleshooting/README.md)
+
+---
 
