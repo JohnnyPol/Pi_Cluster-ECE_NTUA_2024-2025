@@ -1,0 +1,1 @@
+Write about the script in hpc_master that reboots any desired worker and explain how it works
