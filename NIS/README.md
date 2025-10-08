@@ -3,6 +3,24 @@
 This guide describes how to set up a **Network Information Service (NIS)** in a Linux-based HPC (High Performance Computing) cluster built with Raspberry Pis.
 It explains **why NIS is required**, how to **configure both server and clients**, and provides **brief reasoning for each step** of the installation.
 
+- [NIS Server/Client Setup Guide for HPC Cluster](#nis-serverclient-setup-guide-for-hpc-cluster)
+  - [Why We Use NIS in Our HPC Cluster](#why-we-use-nis-in-our-hpc-cluster)
+  - [Step-by-step Setup](#step-by-step-setup)
+    - [**Step 1: Install Required Packages**](#step-1-install-required-packages)
+    - [**Step 2: Set the NIS Domain Name**](#step-2-set-the-nis-domain-name)
+    - [**Step 3: Configure `/etc/yp.conf` on Clients**](#step-3-configure-etcypconf-on-clients)
+    - [**Step 4: Allow RPC Access**](#step-4-allow-rpc-access)
+    - [**Step 5: Fix `_rpc` Missing User (if needed)**](#step-5-fix-_rpc-missing-user-if-needed)
+    - [**Step 6: Enable NIS Maps on the Server**](#step-6-enable-nis-maps-on-the-server)
+    - [**Step 7: Create a Shared User on the Server**](#step-7-create-a-shared-user-on-the-server)
+    - [**Step 8: Modify `/etc/nsswitch.conf` on Clients**](#step-8-modify-etcnsswitchconf-on-clients)
+    - [**Step 9: Allow NIS Lookups (Compatibility)**](#step-9-allow-nis-lookups-compatibility)
+    - [**Step 10: (Optional) Enable Password-less sudo for Shared User**](#step-10-optional-enable-password-less-sudo-for-shared-user)
+    - [**Step 11: Final Checks**](#step-11-final-checks)
+    - [**Step 12: Maintenance and Firewall Notes**](#step-12-maintenance-and-firewall-notes)
+  - [Automation with Ansible Scripts (NIS Server \& Clients)](#automation-with-ansible-scripts-nis-server--clients)
+
+
 ---
 
 ## Why We Use NIS in Our HPC Cluster
@@ -20,7 +38,7 @@ Without NIS, you’d need to manually synchronize `/etc/passwd` and `/etc/group`
 
 ---
 
-## ⚙️ Step-by-step Setup
+## Step-by-step Setup
 
 ---
 
@@ -265,3 +283,9 @@ sudo ufw disable
 ```
 NIS depends on dynamically assigned ports via `rpcbind`.
 If blocked by a firewall, clients won’t be able to communicate with the server.
+
+## Automation with Ansible Scripts (NIS Server & Clients)
+
+To simplify and standardize the configuration of all cluster nodes, the NIS setup can be fully automated using the Ansible playbook [**nis_client_setup.yml**](./nis_client_setup.yml).
+
+This playbook installs the required packages, sets the NIS domain, configures all related files (`/etc/yp.conf`, `/etc/nsswitch.conf`, `/etc/defaultdomain`), creates necessary system users, and restarts services — all in one automated run across every client node.

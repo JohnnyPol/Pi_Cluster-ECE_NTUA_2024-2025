@@ -597,13 +597,6 @@ Here is an example of the Dashboard we imported [Node Exporter Full](https://gra
 
 Rolling out monitoring across a Raspberry Pi HPC cluster is tedious to do by hand. To keep things consistent and repeatable, we use **Ansible playbooks** to automate installing **Prometheus + Grafana** on the **`hpc_master`** and **Node Exporter** on all **compute nodes**.
 
-Excellent — since your cluster automation now also includes **Alertmanager** and the **Discord bridge service**, we’ll extend the “Files used in automation” section to reflect that.
-
-Here’s your updated section (ready to replace the existing one).
-It keeps the exact tone, format, and Markdown style as before — just expanded to include all Alertmanager components and templates.
-
----
-
 ### Files used in automation
 
 * [**prometheus_grafana.yml**](./prometheus_grafana.yml)
