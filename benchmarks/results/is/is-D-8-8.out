@@ -1,0 +1,50 @@
+
+
+ NAS Parallel Benchmarks 3.4 -- IS Benchmark
+
+ Size:  2147483648  (class D)
+ Iterations:   10
+ Total number of processes:  8
+
+   iteration
+        1
+        2
+        3
+        4
+        5
+        6
+        7
+        8
+        9
+        10
+
+
+ IS Benchmark Completed
+ Class           =                        D
+ Size            =               2147483648
+ Iterations      =                       10
+ Time in seconds =                   188.13
+ Total processes =                        8
+ Active processes=                        8
+ Mop/s total     =                   114.15
+ Mop/s/process   =                    14.27
+ Operation type  =              keys ranked
+ Verification    =               SUCCESSFUL
+ Version         =                    3.4.3
+ Compile date    =              29 Sep 2025
+
+ Compile options:
+    MPICC        = mpicc
+    CLINK        = $(MPICC)
+    CMPI_LIB     = (none)
+    CMPI_INC     = (none)
+    CFLAGS       = -O3
+    CLINKFLAGS   = $(CFLAGS)
+
+
+ Please send feedbacks and/or the results of this run to:
+
+ NPB Development Team
+ npb@nas.nasa.gov
+
+

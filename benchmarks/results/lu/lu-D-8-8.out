@@ -1,0 +1,74 @@
+
+
+ NAS Parallel Benchmarks 3.4 -- LU Benchmark
+
+ Size:  408x 408x 408  (class D)
+ Iterations:  300
+ Total number of processes:      8
+
+ Time step    1
+ Time step   20
+ Time step   40
+ Time step   60
+ Time step   80
+ Time step  100
+ Time step  120
+ Time step  140
+ Time step  160
+ Time step  180
+ Time step  200
+ Time step  220
+ Time step  240
+ Time step  260
+ Time step  280
+ Time step  300
+
+ Verification being performed for class D
+ Accuracy setting for epsilon =  0.1000000000000E-07
+ Comparison of RMS-norms of residual
+           1   0.4868417937025E+05 0.4868417937025E+05 0.7472609899459E-14
+           2   0.4696371050071E+04 0.4696371050071E+04 0.6952359480445E-13
+           3   0.1218114549776E+05 0.1218114549776E+05 0.3022404217611E-12
+           4   0.1033801493461E+05 0.1033801493461E+05 0.1738400981301E-12
+           5   0.7142398413817E+05 0.7142398413817E+05 0.2811610589560E-13
+ Comparison of RMS-norms of solution error
+           1   0.3752393004482E+03 0.3752393004482E+03 0.5165665165771E-13
+           2   0.3084128893659E+02 0.3084128893659E+02 0.1497514514369E-12
+           3   0.9434276905469E+02 0.9434276905469E+02 0.2093757502780E-13
+           4   0.8230686681928E+02 0.8230686681928E+02 0.2710714520558E-13
+           5   0.7002620636210E+03 0.7002620636210E+03 0.1185147616132E-13
+ Comparison of surface integral
+               0.8334101392503E+02 0.8334101392503E+02 0.3120416095755E-13
+ Verification Successful
+
+
+ LU Benchmark Completed.
+ Class           =                        D
+ Size            =            408x 408x 408
+ Iterations      =                      300
+ Time in seconds =                  4257.57
+ Total processes =                        8
+ Active processes=                        8
+ Mop/s total     =                  9371.05
+ Mop/s/process   =                  1171.38
+ Operation type  =           floating point
+ Verification    =               SUCCESSFUL
+ Version         =                    3.4.3
+ Compile date    =              30 Sep 2025
+
+ Compile options:
+    MPIFC        = mpif90
+    FLINK        = $(MPIFC)
+    FMPI_LIB     = (none)
+    FMPI_INC     = (none)
+    FFLAGS       = -O3
+    FLINKFLAGS   = $(FFLAGS)
+    RAND         = (none)
+
+
+ Please send feedbacks and/or the results of this run to:
+
+ NPB Development Team 
+ Internet: npb@nas.nasa.gov
+
+

@@ -1,0 +1,15 @@
+slurmstepd-blue2: error:  mpi/pmix_v5: _errhandler: blue2 [1]: pmixp_client_v2.c:211: Error handler invoked: status = -61, source = [slurm.pmix.204.0:5]
+srun: error: blue2: task 5: Killed
+srun: error: blue3: task 10: Killed
+slurmstepd-blue1: error: *** STEP 204.0 ON blue1 CANCELLED AT 2025-06-06T04:50:01 ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: blue8: task 15: Killed
+srun: error: blue4: task 11: Killed
+srun: error: blue5: task 12: Killed
+srun: error: blue7: task 14: Killed
+srun: error: blue6: task 13: Killed
+slurmstepd-blue3: error:  mpi/pmix_v5: _errhandler: blue3 [2]: pmixp_client_v2.c:211: Error handler invoked: status = -61, source = [slurm.pmix.204.0:10]
+srun: error: blue2: tasks 4,6-7: Killed
+srun: error: blue1: task 0: Killed
+srun: error: blue3: tasks 8-9: Killed
+srun: error: blue1: tasks 1-3: Killed

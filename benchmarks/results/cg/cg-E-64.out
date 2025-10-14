@@ -1,0 +1,9 @@
+
+
+ NAS Parallel Benchmarks 3.4 -- CG Benchmark
+
+ Size:    9000000  (class E)
+ Iterations:   100
+ Number of nonzeroes per row:       26
+ Eigenvalue shift:  1500.000
+ Total number of processes:     64

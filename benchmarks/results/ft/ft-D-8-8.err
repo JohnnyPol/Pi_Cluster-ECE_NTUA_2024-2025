@@ -1,0 +1,9 @@
+srun: error: blue2: task 1: Killed
+srun: error: blue1: task 0: Killed
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: blue7: task 6: Killed
+srun: error: blue8: task 7: Killed
+srun: error: blue3: task 2: Killed
+srun: error: blue6: task 5: Killed
+srun: error: blue5: task 4: Killed
+srun: error: blue4: task 3: Killed

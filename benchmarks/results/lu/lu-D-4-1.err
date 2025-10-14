@@ -1,0 +1,5 @@
+slurmstepd-blue1: error:  mpi/pmix_v5: _errhandler: blue1 [0]: pmixp_client_v2.c:211: Error handler invoked: status = -61, source = [slurm.pmix.248.0:2]
+srun: error: blue1: task 2: Killed
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd-blue1: error: *** STEP 248.0 ON blue1 CANCELLED AT 2025-10-14T07:37:57 ***
+srun: error: blue1: tasks 0-1,3: Killed

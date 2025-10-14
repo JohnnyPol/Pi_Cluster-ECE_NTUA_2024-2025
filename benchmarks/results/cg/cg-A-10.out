@@ -1,0 +1,2 @@
+ *** ERROR determining processor topology for 10 processes
+     Expecting a power-of-two number of processes (such as 8)

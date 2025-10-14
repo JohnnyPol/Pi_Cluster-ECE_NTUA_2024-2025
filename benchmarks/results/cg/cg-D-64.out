@@ -1,0 +1,68 @@
+
+
+ NAS Parallel Benchmarks 3.4 -- CG Benchmark
+
+ Size:    1500000  (class D)
+ Iterations:   100
+ Number of nonzeroes per row:       21
+ Eigenvalue shift:   500.000
+ Total number of processes:     64
+
+   iteration           ||r||                 zeta
+        1       0.73128881272748E-12   499.9996989885352
+        5       0.54181457515743E-15    50.6504113318695
+       10       0.58878850772306E-15    51.8233647190076
+       15       0.60418880380438E-15    52.2602520412739
+       20       0.60961668290346E-15    52.4207216938473
+       25       0.61286984228479E-15    52.4796792873371
+       30       0.61330773634715E-15    52.5014686735275
+       35       0.61416681727839E-15    52.5095881341494
+       40       0.61340385689084E-15    52.5126420639628
+       45       0.61362450864881E-15    52.5138021256263
+       50       0.61503127140758E-15    52.5142472814381
+       55       0.61510501300145E-15    52.5144198604462
+       60       0.61366870232198E-15    52.5144874496495
+       65       0.61281917342949E-15    52.5145141852231
+       70       0.61303467901354E-15    52.5145248630686
+       75       0.61298655160501E-15    52.5145291670982
+       80       0.61216252317775E-15    52.5145309171469
+       85       0.61236858719595E-15    52.5145316345672
+       90       0.61270110929415E-15    52.5145319309090
+       95       0.61280206588051E-15    52.5145320541894
+      100       0.61273782242877E-15    52.5145321057925
+ Benchmark completed 
+ VERIFICATION SUCCESSFUL 
+ Zeta is     0.5251453210579E+02
+ Error is    0.2827854039996E-13
+
+
+ CG Benchmark Completed.
+ Class           =                        D
+ Size            =                  1500000
+ Iterations      =                      100
+ Time in seconds =                  3803.16
+ Total processes =                       64
+ Active processes=                       64
+ Mop/s total     =                   957.86
+ Mop/s/process   =                    14.97
+ Operation type  =           floating point
+ Verification    =               SUCCESSFUL
+ Version         =                    3.4.3
+ Compile date    =              29 Sep 2025
+
+ Compile options:
+    MPIFC        = mpif90
+    FLINK        = $(MPIFC)
+    FMPI_LIB     = (none)
+    FMPI_INC     = (none)
+    FFLAGS       = -O3
+    FLINKFLAGS   = $(FFLAGS)
+    RAND         = randi8
+
+
+ Please send feedbacks and/or the results of this run to:
+
+ NPB Development Team 
+ Internet: npb@nas.nasa.gov
+
+

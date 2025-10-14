@@ -1,0 +1,62 @@
+
+ NAS Parallel Benchmarks 3.4 -- EP Benchmark
+
+ Number of random numbers generated:    137438953472  (class D)
+ Total number of processes:                       10
+
+EP Benchmark Results:
+
+CPU Time =   380.056
+N = 2^   36
+No. Gaussian Pairs =   53972171957.
+Sums =     4.306350280811744D+10    4.306347571857194D+10
+Counts:
+  0   25154622775.
+  1   24017899906.
+  2    4508609839.
+  3     284201296.
+  4       6776403.
+  5         61541.
+  6           197.
+  7             0.
+  8             0.
+  9             0.
+
+
+ EP Benchmark Completed.
+ Class           =                        D
+ Size            =             137438953472
+ Iterations      =                        0
+ Time in seconds =                   380.06
+ Total processes =                       10
+ Active processes=                       10
+ Mop/s total     =                   361.63
+ Mop/s/process   =                    36.16
+ Operation type  = Random numbers generated
+ Verification    =               SUCCESSFUL
+ Version         =                    3.4.3
+ Compile date    =              15 Sep 2025
+
+ Compile options:
+    MPIFC        = mpif90
+    FLINK        = $(MPIFC)
+    FMPI_LIB     = (none)
+    FMPI_INC     = (none)
+    FFLAGS       = -O3
+    FLINKFLAGS   = $(FFLAGS)
+    RAND         = randi8
+
+
+ Please send feedbacks and/or the results of this run to:
+
+ NPB Development Team 
+ Internet: npb@nas.nasa.gov
+
+
+ nprocs =    10           minimum     maximum     average
+ timer  1(total   ) :    380.0542    380.0558    380.0548
+ timer  2(gpairs  ) :    322.8427    333.4950    325.0112
+ timer  3(randn   ) :     46.3481     46.6048     46.4390
+ timer  4(rcomm   ) :      0.0035     10.7200      8.5147
+ timer  5( totcomp) :    369.3355    380.0522    371.5401
+ timer  6( totcomm) :      0.0035     10.7200      8.5147
