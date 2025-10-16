@@ -31,6 +31,10 @@ The worker nodes are splitted in two different teams(each one of 8 pis) with nam
 - **Job scheduling:** SLURM with Munge authentication and MPI integration  
 - **Monitoring:** Prometheus, Node Exporter, and Grafana dashboard  
 
+### Login Node Setup
+How we download the OS for the login node and the other nodes. 
+Step by step how we setup the login node
+Write a script for this.
 ---
 
 ## Netboot (PXE Boot)  
