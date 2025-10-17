@@ -1,1 +1,9 @@
-
+# Network (PXE) Boot
+## Intuition and Necessity
+Via PXE Boot Raspberry Pi devices are allowed to boot through network with no SD card required. A central Ubuntu server provides boot files via **TFTP** and the root filesystem via **NFS** enabling easy provisioning and centralized maintenance for many Pis. Furthermore, it offers a single source of truth, denoting that if an update occurs on rootfs of the server all devices can inherit the change in the next booting. On the other hand, it eases the process of adding new devices to the current cluster by creating per-device directories and a simple symlink. Normally, a device requests an IP address from a  DHCP server and via TFTP it downloads bootloader and kernel. Lastly, the kernel mounts its root filesystem over NFS. Especially for the Raspberry Pi, its firmware supports the above process natively and request boot file from the TFTP server(**start4.elf**,**kernel\*.img** and **cmdline.txt**) and afterwards it utilizes the information of **cmdline.txt** to mount the root filesystem from the NFS shared on the network.
+## Prerequisites
+Prior to setup, it is necessary to obtain the DHCP/TFTP and NFS-kernel server into the Ubuntu server and for each device the name/ID,MAC/Serial address should be known. Moreover, we will need a TFTP root directory on the ubuntu server and on each pi client one NFS directory along iwth a TFTP symlink named after the PI's serial pointing to that device's boot/ directory.
+## Step-by-Step Setup
+1. Use directory `/mnt/netboot2/nfs` as TFTP root directory. To do so we need to change the root TFTP directory(this stands for the directory from which the TFTP server serves files). For this, visit `/etc/default/tftp-hpa` file and change the TFTP_DIRECTORY to the desired. For our cluster:
+```TFTP_DIRECTORY="/mnt/netboot2/nfs"```
+ 
