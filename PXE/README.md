@@ -97,6 +97,8 @@ sudo systemctl status tftpd-hpa
 sudo systemctl status nfs-kernel-server
 ```
 
+A summary of the components of this steups and their purposes can be seen below:
+
 | **Component** | **Purpose** |
 |----------------|-------------|
 | **TFTP** | Transfers boot files like `start4.elf`, `cmdline.txt`, etc. |
