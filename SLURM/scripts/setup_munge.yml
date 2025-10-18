@@ -1,0 +1,53 @@
+---
+- name: Install and configure MUNGE
+  hosts: all
+  become: yes
+
+  vars:
+    munge_key_src: /mnt/hpc_shared/munge.key
+    munge_key_dest: /etc/munge/munge.key
+
+  tasks:
+    - name: Set debconf to skip munge user creation
+      debconf:
+        name: "munge"
+        question: "munge/create-munge-user"
+        value: "false"
+        vtype: "boolean"
+
+    - name: Install MUNGE packages
+      apt:
+        name:
+          - libmunge-dev
+          - libmunge2
+          - munge
+        state: present
+        install_recommends: no
+        update_cache: yes
+
+    - name: Ensure /etc/munge directory exists
+      file:
+        path: /etc/munge
+        state: directory
+        owner: munge
+        group: munge
+        mode: '0700'
+
+    - name: Copy munge.key to /etc/munge
+      copy:
+        src: "{{ munge_key_src }}"
+        dest: "{{ munge_key_dest }}"
+        owner: munge
+        group: munge
+        mode: '0600'
+
+    - name: Enable MUNGE service
+      systemd:
+        name: munge
+        enabled: yes
+
+    - name: Start MUNGE service
+      systemd:
+        name: munge
+        state: started
+
