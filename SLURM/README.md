@@ -98,6 +98,8 @@ Here we document the steps we followed to set up Slurm, based primarily on [this
 3. Common directory (NFS)
 4. Munge, Slurm and MariaDB installation
 
+---
+
 ### 1. Cluster time synchronization
 
 Both the master and the workers need to be synchronized. In order to do that we are going to use [chrony](https://chrony-project.org/). Chrony is an implementation of the **Network Time Protocol(NTP)** and can be used to synchronize the machine's clock with the NTP servers specified. We are going to synchronize the `hpc_master` node with the UTC time and every worker node will be set to have the same time as the master node. Here is how we can do that:
@@ -133,7 +135,28 @@ Both the master and the workers need to be synchronized. In order to do that we 
 4. Test if the setup was successful with `chronyc sources`:
    
    **Master node**:
+   
    ![chronyc-master](/SLURM/images/chronyc_master.png)
    
    **Worker nodes**:
+   
    ![chronyc-worker](/SLURM/images/chronyc_worker.png)
+
+---
+
+### 2. Common users and groups
+
+Next, we have to create common `slurm` and `munge` users and groups in every node. This is required by slurm and munge to work properly. In addition to that, it is easier to handle file permissions when every node has the same users with the same user and group ids. We are using **NIS** to create common users and groups instead of just creating them by hand for every node so we can automate and better handle this task. You can find our NIS setup guide [here](/NIS/README.md).
+
+The following table depicts the UIDs and GIDs chosen for the new user and groups:
+| User/Group | UID | GID |
+|------------|-----|-----|
+| `slurm` | 1121 | 1121 |
+| `munge` | 1111 | 1111 |
+
+---
+
+### 3. Common directory
+
+All the nodes must be able to write to and read from shared files. To achieve this, we set up a common directory accessible to all nodes at `/mnt/hpc_shared`. Please refer to our [NFS setup guide](/NFS/README.md) for instructions on configuring your own NFS shared directory.
+
