@@ -1,0 +1,24 @@
+---
+- name: Uninstall Slurm and remove its directories
+  hosts: all
+  become: true
+
+  tasks:
+
+    - name: Remove Slurm packages
+      apt:
+        name:
+          - slurm-wlm
+          - slurm-wlm-basic-plugins
+        state: absent
+
+    - name: Remove Slurm-related directories
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/spool/slurmctld
+        - /var/spool/slurmd
+        - /var/log/slurm
+        - /etc/slurm
+

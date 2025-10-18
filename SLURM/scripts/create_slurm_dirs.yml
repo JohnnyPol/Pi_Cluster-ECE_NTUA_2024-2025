@@ -1,0 +1,26 @@
+---
+- name: Create and set permissions for SLURM directories
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Create /etc/slurm directory
+      file:
+        path: /etc/slurm
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Create SLURM directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+        owner: slurm
+        group: slurm
+        recurse: yes
+      loop:
+        - /var/spool/slurmctld
+        - /var/spool/slurmd
+        - /var/log/slurm

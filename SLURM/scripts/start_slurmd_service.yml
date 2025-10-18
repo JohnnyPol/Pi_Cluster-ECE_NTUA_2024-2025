@@ -1,0 +1,15 @@
+---
+- name: Enable and start slurmd service on worker nodes
+  hosts: all  # Make sure you have a group named 'workers' in your inventory
+  become: yes     # Equivalent to using sudo
+
+  tasks:
+    - name: Enable slurmd service to start on boot
+      ansible.builtin.service:
+        name: slurmd
+        enabled: yes
+
+    - name: Start slurmd service
+      ansible.builtin.service:
+        name: slurmd
+        state: started

@@ -1,0 +1,16 @@
+---
+- name: Enable and start munge.service
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Enable MUNGE service
+      systemd:
+        name: munge
+        enabled: yes
+
+    - name: Start MUNGE service
+      systemd:
+        name: munge
+        state: started
+

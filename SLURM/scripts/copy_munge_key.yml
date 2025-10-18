@@ -1,0 +1,22 @@
+---
+- name: Copy munge.key to worker nodes
+  hosts: all
+  become: yes
+  tasks:
+    - name: Copy munge.key file
+      copy:
+        src: /etc/munge/munge.key
+        dest: /etc/munge/munge.key
+        owner: munge
+        group: munge
+        mode: '0400'
+
+    - name: Restart munge
+      ansible.builtin.service:
+        name: munge
+        state: restarted
+
+    - name: Restart slurmd
+      ansible.builtin.service:
+        name: slurmd
+        state: restarted

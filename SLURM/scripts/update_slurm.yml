@@ -1,0 +1,17 @@
+---
+- name: Update Slurm packages
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600  # 1 hour
+
+    - name: Ensure Slurm packages are installed and up-to-date
+      apt:
+        name:
+          - slurm-wlm
+          - slurm-wlm-basic-plugins
+        state: latest

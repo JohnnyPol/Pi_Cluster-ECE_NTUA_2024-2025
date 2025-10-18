@@ -1,0 +1,19 @@
+---
+- name: Verify Munge Key Existence
+  hosts: all 
+  become: yes  
+  tasks:
+    - name: Check if /etc/munge/munge.key exists
+      stat:
+        path: /etc/munge/munge.key
+      register: munge_key_stat
+
+    - name: Report Munge Key Status
+      debug:
+        msg: "✅ Munge key exists (Permissions: {{ munge_key_stat.stat.mode }}, Size: {{ munge_key_stat.stat.size }} bytes)"
+      when: munge_key_stat.stat.exists
+
+    - name: Fail if Munge Key is Missing
+      fail:
+        msg: "❌ /etc/munge/munge.key does NOT exist! Slurm authentication will fail."
+      when: not munge_key_stat.stat.exists

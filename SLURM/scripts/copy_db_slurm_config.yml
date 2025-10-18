@@ -1,0 +1,17 @@
+---
+- name: Copy slurmdbd.conf to worker nodes
+  hosts: all
+  become: true
+  tasks:
+    - name: Copy slurmdbd.conf file
+      copy:
+        src: /etc/slurm/slurmdbd.conf
+        dest: /etc/slurm/slurmdbd.conf
+        owner: slurm 
+        group: slurm
+        mode: '0600'
+
+    - name: Restart slurmd
+      systemd:
+        name: slurmd
+        state: restarted
