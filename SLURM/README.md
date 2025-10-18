@@ -86,8 +86,6 @@ Slurm uses [MariaDB](https://mariadb.org/) for persistent job accounting and his
 
 ---
 
-## TO-DO: Setup Guide + Config changes + Ansible scripts
-
 ## Setup Guide
 
 Here we document the steps we followed to set up Slurm, based primarily on [this guide](https://github.com/ReverseSage/Slurm-ubuntu-20.04.1) as well as on various community forum discussions. During the Slurm setup, we developed several Ansible and Bash automation scripts to speed up the process. We recommend reading these scripts alongside this guide to better understand each configuration step.
@@ -196,3 +194,82 @@ The Munge setup for workers is fully automated with the scripts that we have dev
 
 --- 
 
+### 5. MariaDB installation
+
+MariaDB is needed by Slurm to keep details about submitted jobs. Let's set it up:
+
+1. Install the `mariadb-server` package
+   ```bash
+   sudo apt install mariadb-server
+   ```
+2. Start the server and login
+   ```bash
+   sudo systemctl enable mysql
+   sudo systemctl start mysql
+   sudo mysql -u root
+   ```
+3. Create the account that Slurm will use
+   ```bash
+   create database slurm_acct_db;
+   create user 'slurm'@'localhost';
+   set password for 'slurm'@'localhost' = password('password');
+   grant usage on *.* to 'slurm'@'localhost';
+   grant all privileges on slurm_acct_db.* to 'slurm'@'localhost';
+   flush privileges;
+   exit
+   ```
+   _Note_: Change 'password' with your own unique and safe password
+
+_Note_: We are going to modify the configuration file that Slurm uses to configure the database later in this guide.
+
+---
+
+### 6. Slurm installation
+
+**Master Node**
+
+1. Install slurm
+   ```bash
+   sudo apt install slurm-wlm slurm-wlm-basic-plugins
+   ```
+2. Create needed directories
+   ```bash
+   sudo mkdir -p /etc/slurm /etc/slurm/prolog.d /etc/slurm/epilog.d /var/spool/slurm/ctld /var/spool/slurm/d /var/log/slurm
+   sudo chown slurm /var/spool/slurm/ctld /var/spool/slurm/d /var/log/slurm
+   ```
+3. Copy `/SLURM/config/slurm.conf` into `/etc/slurm/` and change the NodeNames at the end of the file
+4. Copy `/SLURM/config/slurmdb.conf` inst `/etc/slurm/` and go through the settings
+5. Enable and start the services
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl enable slurmdbd
+   sudo systemctl start slurmdbd
+   sudo systemctl enable slurmctld
+   sudo systemctl start slurmctld
+   ```
+
+**Worker Nodes**
+
+Once again, when it comes to the workers we have automated the setup with ansible scripts.
+
+1. Install slurm packages
+   ```bash
+   ansible-playbook install_slurm.yml
+   ```
+2. Create slurm directories with correct permissions
+   ```bash
+   ansible-playbook create_slurm_dirs.yml
+   ```
+3. Copy the config files
+   ```bash
+   ansible-playbook copy_slurm_config.yml
+   ansible-playbook copy_db_slurm_config.yml
+   ```
+4. Start the service
+   ```bash
+   ansible-playbook start_slurmd_service.yml
+   ```
+
+---
+
+## TO-DO Job submission guide
