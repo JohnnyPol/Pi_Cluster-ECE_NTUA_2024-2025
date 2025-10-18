@@ -272,4 +272,20 @@ Once again, when it comes to the workers we have automated the setup with ansibl
 
 ---
 
-## TO-DO Job submission guide
+## Troubleshooting
+
+The main issue we encountered was that, at random intervals, the `slurmd` service on some nodes would crash. When running `sinfo`, these nodes appeared with a status of `down*`. Restarting the `slurmd` service alone did not resolve the problem; a full reboot of the affected Raspberry Pi was required. To automate the recovery process, we created a simple bash function that resets the status of a failed node:
+
+```bash
+resetnode() {
+  local node=$1
+  if [ -z "$node" ]; then
+    echo "Usage: resetnode <NodeName>"
+    return 1
+  fi
+  sudo scontrol update NodeName=$node State=DOWN Reason="Resetting"
+  sudo scontrol update NodeName=$node State=RESUME
+}
+```
+
+With this function we can type `resetnode "red[1-8],blue[1-8]"` and the slurm controller will try to reset all nodes' status.
