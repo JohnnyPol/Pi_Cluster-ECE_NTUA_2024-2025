@@ -96,7 +96,9 @@ Here we document the steps we followed to set up Slurm, based primarily on [this
 1. Cluster time synchronization (chrony)
 2. Common users and groups (NIS)
 3. Common directory (NFS)
-4. Munge, Slurm and MariaDB installation
+4. Munge installation
+5. MariaDB installation
+6. Slurm installation
 
 ---
 
@@ -148,7 +150,7 @@ Both the master and the workers need to be synchronized. In order to do that we 
 
 Next, we have to create common `slurm` and `munge` users and groups in every node. This is required by slurm and munge to work properly. In addition to that, it is easier to handle file permissions when every node has the same users with the same user and group ids. We are using **NIS** to create common users and groups instead of just creating them by hand for every node so we can automate and better handle this task. You can find our NIS setup guide [here](/NIS/README.md).
 
-The following table depicts the UIDs and GIDs chosen for the new user and groups:
+The following table depicts the UIDs and GIDs chosen for the new users and groups:
 | User/Group | UID | GID |
 |------------|-----|-----|
 | `slurm` | 1121 | 1121 |
@@ -159,4 +161,38 @@ The following table depicts the UIDs and GIDs chosen for the new user and groups
 ### 3. Common directory
 
 All the nodes must be able to write to and read from shared files. To achieve this, we set up a common directory accessible to all nodes at `/mnt/hpc_shared`. Please refer to our [NFS setup guide](/NFS/README.md) for instructions on configuring your own NFS shared directory.
+
+---
+
+### 4. Munge installation
+
+Munge is responsible for the authentication processes inside Slurm. First, we have to setup munge on `hpc_master` and generate a key that all nodes will share. After that, we install Munge on all worker nodes and copy the shared key in their local directories.
+
+**Master node guide**:
+
+1. Install Munge
+   ```bash
+   sudo apt install libmunge-dev libmunge2 munge -y
+   sudo systemctl enable munge
+   sudo systemctl start munge
+    ```
+2. Test the installation with `munge -n | unmunge | grep STATUS`. You should see a `Success (0)` status message
+3. Copy the generated munge key into the shared directory and change the permissions so the worker nodes can get it:
+   ```bash
+   sudo cp /etc/munge/munge.key /mnt/hpc_shared/
+   sudo chown munge /mnt/hpc_shared/munge.key
+   sudo chmod 400 /mnt/hpc_shared/munge.key
+   ```
+
+**Worker nodes guide**
+
+The Munge setup for workers is fully automated with the scripts that we have developed. You can find the scripts in the `SLURM/scripts` directory of this repositoty. You have to run only one script that installs Munge, its dependencies, copies the key from the shared directory to the local one and starts the service: `ansible-playbook setup_munge.yml`
+
+**Extra scripts for specific tasks**
+
+- `start_munge_service.yml` :: enables and starts the Munge service
+- `copy_munge_key.yml` :: copies the key from the shared directory to the local one
+- `check_munge_key.yml` :: checks if the key is copied locally
+
+--- 
 
