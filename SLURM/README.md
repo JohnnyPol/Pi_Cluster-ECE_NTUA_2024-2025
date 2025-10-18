@@ -87,3 +87,53 @@ Slurm uses [MariaDB](https://mariadb.org/) for persistent job accounting and his
 ---
 
 ## TO-DO: Setup Guide + Config changes + Ansible scripts
+
+## Setup Guide
+
+Here we document the steps we followed to set up Slurm, based primarily on [this guide](https://github.com/ReverseSage/Slurm-ubuntu-20.04.1) as well as on various community forum discussions. During the Slurm setup, we developed several Ansible and Bash automation scripts to speed up the process. We recommend reading these scripts alongside this guide to better understand each configuration step.
+
+### Steps Overview
+1. Cluster time synchronization (chrony)
+2. Common users and groups (NIS)
+3. Common directory (NFS)
+4. Munge, Slurm and MariaDB installation
+
+### 1. Cluster time synchronization
+
+Both the master and the workers need to be synchronized. In order to do that we are going to use [chrony](https://chrony-project.org/). Chrony is an implementation of the **Network Time Protocol(NTP)** and can be used to synchronize the machine's clock with the NTP servers specified. We are going to synchronize the `hpc_master` node with the UTC time and every worker node will be set to have the same time as the master node. Here is how we can do that:
+
+1. Install `chrony` on every node (both master and workers):
+   ```bash
+   sudo apt update
+   sudo apt install chrony
+   ```
+2. Edit chrony's configuration file `/etc/chrony/chrony.conf` as mentioned above:
+
+   In the `hpc_master`'s config file we are going to add these lines:
+   ```bash
+   allow 192.168.2.0/24
+
+   # Default Ubuntu NTP servers are okay
+   server ntp.ubuntu.com iburst
+
+   local stratum 10
+   ```
+
+   In the worker nodes' config files, first comment out every line starting with `pool` or `server` and then add:
+   ```bash
+   # Use hpc_master Pi as NTP server
+   server 192.168.2.117 iburst
+   ```
+   _Note_: `192.168.2.117` is the address of `hpc_master` in our local network
+3. Restart and enable the `chrony` service first on `hpc_master` and then on all the workers:
+   ```bash
+   sudo systemctl restart chrony
+   sudo systemctl enable chrony
+   ```
+4. Test if the setup was successful with `chronyc sources`:
+   
+   **Master node**:
+   ![chronyc-master](/SLURM/images/chronyc_master.png)
+   
+   **Worker nodes**:
+   ![chronyc-worker](/SLURM/images/chronyc_worker.png)
