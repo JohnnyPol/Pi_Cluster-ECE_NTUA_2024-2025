@@ -4,6 +4,29 @@ This document describes the setup and configuration of our High-Performance Comp
 
 ---
 
+## Table of Contents
+
+- [Cluster Architecture](#cluster-architecture)
+- [What is Slurm?](#what-is-slurm)
+  - [Key Components](#key-components)
+- [How does Slurm work?](#how-does-slurm-work)
+  - [Integration with MPI](#integration-with-mpi)
+- [Munge Authentication](#munge-authentication)
+  - [How does Munge work?](#how-does-munge-work)
+- [Job accounting with MariaDB](#job-accounting-with-mariadb)
+  - [Components](#components)
+- [Setup Guide](#setup-guide)
+  - [Steps Overview](#steps-overview)
+  - [1. Cluster time synchronization](#1-cluster-time-synchronization)
+  - [2. Common users and groups](#2-common-users-and-groups)
+  - [3. Common directory](#3-common-directory)
+  - [4. Munge installation](#4-munge-installation)
+  - [5. MariaDB installation](#5-mariadb-installation)
+  - [6. Slurm installation](#6-slurm-installation)
+- [Troubleshooting](#troubleshooting)
+
+---
+
 ## Cluster Architecture
 
 | Role | Hostname | Description |
