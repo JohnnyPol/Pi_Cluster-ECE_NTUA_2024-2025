@@ -4,6 +4,17 @@ We used the [NAS Parallel Benchmarks (NPB)](https://www.nas.nasa.gov/software/np
 
 ---
 
+## Table of contents
+- [Benchmark suite description](#benchmark-suite-description)
+- [Building the benchmarks](#building-the-benchmarks)
+- [Running the benchmarks](#running-the-benchmarks)
+- [Results](#results)
+  - [Experiments Table](#experiments-table)
+  - [Speedup Plots](#speedup-plots)
+  - [An Interesting Discovery](#an-interesting-discovery)
+
+---
+
 ## Benchmark suite description
 
 The NAS Parallel Benchmarks (NPB) were developed by NASA Ames Research Center to assess the performance of parallel supercomputers. They consist of various kernel and pseudo-application benchmarks (such as IS, EP, CG, MG, FT, BT, SP, LU) designed to stress different aspects of parallel computation: integer sorting, communication‐intensive kernels, memory access, large all-to-all patterns, etc. Each benchmark is offered in different "classes" (S, W, A, B, C, D, E, F) that reflect increasing problem sizes. The table below summarizes the purpose of each benchmark and the corresponding problem class used in our tests.
@@ -40,6 +51,8 @@ We downloaded the source code of the NPB and built (with MPI) the problem classe
 
 The generated binary file will be inside the `bin` folder and have a name format `<benchmark>.<class>.x` (e.g. `ep.D.x`).
 
+---
+
 ## Running the benchmarks
 
 As described in the previous section, all benchmark binary files are located in the `/mnt/hpc_shared/NPB3.4.3/NPB3.4-MPI/bin/` directory. Each benchmark job is submitted to the cluster using Slurm's `sbatch` command. This was a command we used multiple times so we wrote a Python script, that you can find in `/benchmarks/scripts/job.py` directory of this repository, to automate this process. We have also created a bash alias to run this script with `job <benchmark> <pis> <cores>` from anywhere inside `hpc_master` node.
@@ -60,6 +73,8 @@ sbatch --nodes=8 --ntasks=32 --wrap="srun --mpi=pmix /mnt/hpc_shared/NPB3.4.3/NP
 The job produces two output files in the directory where the command is executed:
 - `ep-D-32-8.out` : standard output
 - `ep-D-32-8.err` : standard error
+
+---
 
 ## Results
 
@@ -99,3 +114,15 @@ where $T_{1-4}$ is the execution time of the `1-4` experiment and $i$ can take `
  ![ft-C-speedup](/benchmarks/plots/ft-C_speedup_plot.png)
 
  On the other hand, in the `FT` benchmark in which there is long-distance communication between nodes, we can clearly see that communication takes a big toll in our setup with a speedup of $S \simeq 6$ when we have x16 more cores.
+
+### An Interesting Discovery
+
+As demonstrated above, communication overhead can significantly impact the cluster's performance. To validate this observation, we formulated the hypothesis that for a fixed number of total cores (e.g., 16), using fewer nodes should result in faster execution times due to reduced inter-node communication. To test this, we compared the execution times from the `4-16`, `8-16`, and `16-16` experiments and plotted the results. Let's see these comparison plots for `EP-D` and `FT-C` again.
+
+![ep-d-comp](/benchmarks/plots/ep-D_comparison_plot.png)
+
+![ft-c-comp](/benchmarks/plots/ft-C_comparison_plot.png)
+
+For the `EP-D` comparison plot we can see that the execution times are almost the same as the benchmark does not require excesive communication between the nodes. **But** the `FT-C` plot disproves our hypothesis! The `16-16` execution time is by far smaller than `4-16`. How is that possible when we know that the bottleneck of our architecture design is the network? The answer is hidden in the [thermal control](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#frequency-management-and-thermal-control) section of Raspberry Pi's official documentation. When the raspberry pi is loaded with heavy workload and the temperature hits **80&deg;C**, then the CPU drops its frequency! This phenomenon is called **Thermal Throttling**.
+
+**TO-DO: our thermal throttling test should go here!**
