@@ -14,13 +14,13 @@ The repository is modular: each subsystem has its own configuration and detailed
 ---
 
 ## Architecture  
-Our team has developed a high-performance computing (HPC) cluster using 18 Raspberry Pi 4 devices. The cluster is composed of:
+Our team has developed a high-performance computing (HPC) cluster using **18 Raspberry Pi 4** devices. The cluster is composed of:
 
 - **16 worker nodes (clients)**
 - **1 master node**
 - **1 login node**
 
-The worker nodes are splitted in two different teams(each one of 8 pis) with names red and blue.
+The worker nodes are split into two groups (each consisting of 8 Pis) named **red** and **blue**.
 
 **Key characteristics:**
 - **OS:** Raspberry Pi OS (64-bit, Lite)
@@ -31,11 +31,32 @@ The worker nodes are splitted in two different teams(each one of 8 pis) with nam
 - **Job scheduling:** SLURM with Munge authentication and MPI integration  
 - **Monitoring:** Prometheus, Node Exporter, and Grafana dashboard  
 
+### Network Infrastructure  
+The cluster is interconnected via a **managed Layer 2 switch** from **Ubiquiti**, which provides high-speed and configurable network management capabilities for all nodes.
+
+**Switch Specifications:**
+- **Description:** The managed switch from Ubiquiti is mainly recommended for large professional networks. It allows the network administrator to configure parameters related to security, traffic prioritization, and remote error correction.  
+- **Layer:** L2  
+- **Switching Speed:** 88 Gbps  
+- **Network Type:** Managed Layer 2  
+- **PoE Support:** Yes — compliant with PoE (802.3af) and PoE+ (802.3at) standards, capable of powering high-demand devices such as IP video phones and HD PTZ IP cameras.  
+- **Ethernet Connections:** 48 Ports  
+- **Ethernet Port Speed:** 1000 Mbps (1 Gbps)  
+- **SFP Connections:** 2 Ports  
+- **MAC Address Table:** –  
+- **Rack Mountable:** Yes  
+
+This switch forms the **core interconnect backbone** of the cluster, ensuring stable Gigabit connectivity between the login, master, and worker nodes, as well as reliable power delivery via PoE.
+
+### Diagram
+![HPC Architecture](HPC_Deployment_Diagram.svg)
+
+
 ### Login Node Setup
 How we download the OS for the login node and the other nodes. 
 Step by step how we setup the login node
 Write a script for this.
----
+
 
 ## Netboot (PXE Boot)  
 Worker nodes are configured to boot entirely from the network using **PXE (Preboot Execution Environment)**.  
@@ -83,8 +104,8 @@ The monitoring stack collects and visualizes metrics from all nodes.
 ---
 
 ## NAS Benchmarks  
-This section is reserved for **future benchmarking and performance evaluation** of the shared network storage (NFS/NAS).  
-Tests will include throughput, latency, and scalability metrics under different workloads.
+@nspyrop03 If available, complete this little section as well.
+
 
 ---
 
