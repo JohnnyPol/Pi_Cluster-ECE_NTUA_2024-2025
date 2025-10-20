@@ -1,5 +1,8 @@
 # HPC SLURM Raspberry Pi Cluster
 
+<img width="903" height="483" alt="image" src="https://github.com/user-attachments/assets/564807bb-d35f-4385-8998-1032c6900ddb" />
+
+---
 This document describes the setup and configuration of our High-Performance Computing (HPC) cluster built with Raspberry Pis. The cluster uses **SLURM** (Simple Linux Utility for Resource Management) as its workload manager, **Munge** for authentication, and **MariaDB** for job accounting and tracking.
 
 ---
