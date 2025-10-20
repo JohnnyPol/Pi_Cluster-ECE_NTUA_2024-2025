@@ -125,4 +125,14 @@ As demonstrated above, communication overhead can significantly impact the clust
 
 For the `EP-D` comparison plot we can see that the execution times are almost the same as the benchmark does not require excesive communication between the nodes. **But** the `FT-C` plot disproves our hypothesis! The `16-16` execution time is by far smaller than `4-16`. How is that possible when we know that the bottleneck of our architecture design is the network? The answer is hidden in the [thermal control](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#frequency-management-and-thermal-control) section of Raspberry Pi's official documentation. When the raspberry pi is loaded with heavy workload and the temperature hits **80&deg;C**, then the CPU drops its frequency! This phenomenon is called **Thermal Throttling**.
 
-**TO-DO: our thermal throttling test should go here!**
+After reading the Raspberry Pi's thermal control documentation, we decided to design an experiment to observer the thermal throttling phenomenon and prove that this is the reason of the weird behaviour of the `16-16` experiment. We selected nodes `red[1-4]` and `blue[1-4]`, ran the `EP-D` benchmark with the `8-32` format and monitored `red1`'s and `blue2`'s system temperature and clock frequency with the [monitor-temp.sh](/benchmarks/thermal-throttling/monitor-temp.sh) script. The script uses the [vcgencmd](https://elinux.org/RPI_vcgencmd_usage) command. We plotted the results:
+
+**Red1 node**:
+
+![red1-thermal](/benchmarks/thermal-throttling/plots/ep-D-32-8-red1.png)
+
+**Blue2 node**:
+
+![blue2-thermal](/benchmarks/thermal-throttling/plots/ep-D-32-8-blue2.png)
+
+We can clearly see the thermal throttling event occuring in the `blue2` plot. When the temperature is above **80&deg;C**, the clock frequency drops, sometimes even to 1/3 of the full speed(1.8GHz). We can also see that there is no thermal throttling in the `red1` plot. This is due to the node's position in the cluster(upper-left corner). It is not surounded by other working nodes.
