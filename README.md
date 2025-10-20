@@ -103,9 +103,10 @@ The monitoring stack collects and visualizes metrics from all nodes.
 
 ---
 
-## NAS Benchmarks  
-@nspyrop03 If available, complete this little section as well.
+## NAS Parallel Benchmarks  
+We use the **NAS Parallel Benchmarks (NPB)** suite developed by NASA to evaluate the performance and scalability of our Raspberry Pi cluster. These benchmarks test different aspects of parallel computation — including computation speed, memory access patterns, and inter-node communication efficiency — providing insights into how well our cluster handles various workload types.  
 
+For detailed results, plots, and analysis, see the [Benchmark Results Documentation](/benchmarks/README.md)
 
 ---
 
