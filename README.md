@@ -62,7 +62,7 @@ The cluster consists of **18 Raspberry Pi 4** units:
 **Monitoring:** Prometheus + Grafana + Node Exporter
 
 ### Diagram
-![HPC Architecture](HPC_Deployment_Diagram.svg)
+![HPC Architecture](https://github.com/user-attachments/assets/9f6bae73-c693-498a-b627-d2d508630565)
 
 ---
 

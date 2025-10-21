@@ -28,7 +28,7 @@ The Raspberry Pi firmware natively supports this process. During boot, it retrie
 
 Using the information in `cmdline.txt`, the kernel mounts the NFS-shared root filesystem and completes the boot sequence.
 
-![DHCP & TFTP Role](pxe-boot-flow.png)
+![DHCP & TFTP Role](https://github.com/user-attachments/assets/14102bb4-4ce9-42bf-b39c-4f55a00bae7c)
 
 ---
 
