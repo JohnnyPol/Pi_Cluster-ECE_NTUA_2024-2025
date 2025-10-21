@@ -27,8 +27,9 @@ The Raspberry Pi firmware natively supports this process. During boot, it retrie
 * `cmdline.txt` – Configuration file specifying kernel arguments and the NFS root path
 
 Using the information in `cmdline.txt`, the kernel mounts the NFS-shared root filesystem and completes the boot sequence.
-
-![DHCP & TFTP Role](https://github.com/user-attachments/assets/14102bb4-4ce9-42bf-b39c-4f55a00bae7c)
+<p align="center">
+<img alt="image" src="https://github.com/user-attachments/assets/14102bb4-4ce9-42bf-b39c-4f55a00bae7c" />
+</p> 
 
 ---
 
