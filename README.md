@@ -139,7 +139,7 @@ Special thanks to:
 - The open-source communities of SLURM, Ansible, and Prometheus  
 
 ## References
-> You may find these links useful
+> You may find these links useful <br>
 [Git Repository Similar Project](https://github.com/projectRaspberry/wipi) <br>
 [Article for Slurm](https://www.howtoraspberry.com/2022/03/how-to-build-an-hpc-high-performance-cluster-with-raspberry-pi-computers/) <br>
 [Another Article for Slurm ](https://medium.com/@hghcomphys/building-slurm-hpc-cluster-with-raspberry-pis-step-by-step-guide-ae84a58692d5)<br>
