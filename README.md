@@ -14,14 +14,19 @@
 ---
 
 ## Table of Contents
-1. [Overview](#overview)
-2. [System Architecture](#system-architecture)
-3. [Network Infrastructure](#network-infrastructure)
-4. [Cluster Components](#cluster-components)
-5. [Performance Evaluation](#performance-evaluation)
-6. [Troubleshooting](#troubleshooting)
-7. [Contributors](#contributors)
-8. [Acknowledgements](#acknowledgements)
+- [HPC\_Cluster-ECE\_NTUA\_2024-2025](#hpc_cluster-ece_ntua_2024-2025)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Key Capabilities](#key-capabilities)
+  - [System Architecture](#system-architecture)
+    - [Diagram](#diagram)
+  - [Network Infrastructure](#network-infrastructure)
+  - [Cluster Components](#cluster-components)
+  - [Performance Evaluation](#performance-evaluation)
+  - [Troubleshooting](#troubleshooting)
+  - [Contributors](#contributors)
+  - [Acknowledgements](#acknowledgements)
+  - [References](#references)
 
 ---
 ## Overview  
@@ -48,7 +53,7 @@ The cluster consists of **18 Raspberry Pi 4** units:
   - `red1–red8`
   - `blue1–blue8`
 
-**Operating System:** Raspberry Pi OS (64-bit Lite)  
+**Operating System:** Ubuntu 24.04 
 **Networking:** Static IP configuration over Gigabit Ethernet  
 **Boot Method:** PXE (diskless network boot)  
 **Storage:** NFS shared filesystem  
@@ -105,6 +110,14 @@ These benchmarks measure:
 
 ---
 
+## Automation
+ANSIBLE
+All scripts are in the corresponding folder
+
+
+---
+
+
 ## Troubleshooting  
 
 All known issues, diagnostic steps, and recovery procedures are centralized in a dedicated guide covering PXE, NFS, NIS, SLURM, and monitoring components.  
@@ -128,3 +141,18 @@ Special thanks to:
 - CSLab, NTUA, for technical guidance  
 - Raspberry Pi Foundation for the open hardware platform  
 - The open-source communities of SLURM, Ansible, and Prometheus  
+
+## References
+> You may find these links useful
+[Git Repository Similar Project](https://github.com/projectRaspberry/wipi) <br>
+[Article for Slurm](https://www.howtoraspberry.com/2022/03/how-to-build-an-hpc-high-performance-cluster-with-raspberry-pi-computers/) <br>
+[Another Article for Slurm ](https://medium.com/@hghcomphys/building-slurm-hpc-cluster-with-raspberry-pis-step-by-step-guide-ae84a58692d5)<br>
+[PDF of HPC Cluster Documentation](https://wr.informatik.uni-hamburg.de/_media/teaching/sommersemester_2021/ps-21_rasperry-pi-cluster.pdf) <br>
+[PDF Slides (Probably not Useful)](https://archive.fosdem.org/2020/schedule/event/rpi_cluster/attachments/slides/3635/export/events/attachments/rpi_cluster/slides/3635/Introducing_HPC_with_a_Raspberry_Pi_Cluster.pdf) <br> 
+[Article for NFS](https://www.howtoraspberry.com/2020/10/how-to-make-network-shared-storage-with-a-raspberry/) <br>
+[Article for the Cluster Setup](https://jackyko1991.github.io/journal/Cluster-Setup-2.html) <br>
+[Another Article for Cluster](https://glmdev.medium.com/building-a-raspberry-pi-cluster-784f0df9afbd) <br>
+[Slurm Documentation](https://slurm.schedmd.com/documentation.html) <br>
+[Useful YouTube Video for Slurm](https://www.youtube.com/watch?v=YZbRnrfECfo) <br>
+[Slurm Installation Repository Tutorial](https://github.com/ReverseSage/Slurm-ubuntu-20.04.1) <br>
+[Slurm Configuration Generator Tool](https://slurm.schedmd.com/configurator.html) <br>
