@@ -107,9 +107,15 @@ These benchmarks measure:
 ---
 
 ## Automation
-ANSIBLE
-All scripts are in the corresponding folder
+Most of the cluster setup and maintenance workflow is orchestrated through **Ansible**, ensuring consistent configuration and minimal manual intervention. Using a centralized inventory, the master node can simultaneously deploy updates, install packages, and modify configurations across all 16 worker nodes.
 
+Automation covers almost every major subsystem of the cluster, including:
+
+* **NFS & NIS Configuration:** Seamless setup of shared storage and centralized authentication.
+* **SLURM Deployment:** Automatic installation of SLURM controller and compute daemons with Munge authentication.
+* **Monitoring Stack:** Installation and configuration of Prometheus, Node Exporters, and Grafana dashboards.
+
+All playbooks, inventory files, and configuration templates are documented in the corresponding folders.
 
 ---
 
