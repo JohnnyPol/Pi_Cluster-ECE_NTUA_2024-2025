@@ -1,5 +1,16 @@
 # Pi_Cluster-ECE_NTUA_2024-2025  
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Raspberry Pi](https://img.shields.io/badge/hardware-Raspberry%20Pi%204-red.svg)
+![Cluster Nodes](https://img.shields.io/badge/nodes-18-brightgreen.svg)
+![OS](https://img.shields.io/badge/OS-Raspberry%20Pi%20OS%20Lite-ff69b4.svg)
+![Automation](https://img.shields.io/badge/automation-Ansible-orange.svg)
+![Monitoring](https://img.shields.io/badge/monitoring-Prometheus%20%26%20Grafana-yellow.svg)
+![Scheduler](https://img.shields.io/badge/job%20scheduler-SLURM-blueviolet.svg)
+![MPI](https://img.shields.io/badge/parallel-MPI-important.svg)
+![Architecture](https://img.shields.io/badge/architecture-HPC%20Cluster-lightgrey.svg)
+![Institution](https://img.shields.io/badge/NTUA-ECE-0057b8.svg)
+
 ## Description  
 This repository documents the full setup, configuration, and automation of an **HPC (High Performance Computing) cluster** built using **Raspberry Pi boards** by students of the **School of Electrical and Computer Engineering, NTUA (2024–2025)**.  
 
