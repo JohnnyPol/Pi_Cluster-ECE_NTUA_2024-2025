@@ -14,19 +14,15 @@
 ---
 
 ## Table of Contents
-- [HPC\_Cluster-ECE\_NTUA\_2024-2025](#hpc_cluster-ece_ntua_2024-2025)
-  - [Table of Contents](#table-of-contents)
-  - [Overview](#overview)
-    - [Key Capabilities](#key-capabilities)
-  - [System Architecture](#system-architecture)
-    - [Diagram](#diagram)
-  - [Network Infrastructure](#network-infrastructure)
-  - [Cluster Components](#cluster-components)
-  - [Performance Evaluation](#performance-evaluation)
-  - [Troubleshooting](#troubleshooting)
-  - [Contributors](#contributors)
-  - [Acknowledgements](#acknowledgements)
-  - [References](#references)
+1. [Overview](#overview)
+2. [System Architecture](#system-architecture)
+3. [Network Infrastructure](#network-infrastructure)
+4. [Cluster Components](#cluster-components)
+5. [Performance Evaluation](#performance-evaluation)
+6. [Troubleshooting](#troubleshooting)
+7. [Contributors](#contributors)
+8. [Acknowledgements](#acknowledgements)
+9. [References](#references)
 
 ---
 ## Overview  
