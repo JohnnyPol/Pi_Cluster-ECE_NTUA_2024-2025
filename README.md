@@ -1,4 +1,4 @@
-# HPC_Pi_Cluster-ECE_NTUA_2024-2025  
+# HPC_Cluster-ECE_NTUA_2024-2025  
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Raspberry Pi](https://img.shields.io/badge/hardware-Raspberry%20Pi%204-red.svg)
@@ -14,17 +14,14 @@
 ---
 
 ## Table of Contents
-- [HPC\_Pi\_Cluster-ECE\_NTUA\_2024-2025](#hpc_pi_cluster-ece_ntua_2024-2025)
-  - [Table of Contents](#table-of-contents)
-  - [Overview](#overview)
-    - [Key Capabilities](#key-capabilities)
-  - [System Architecture](#system-architecture)
-    - [Diagram](#diagram)
-  - [Network Infrastructure](#network-infrastructure)
-  - [Cluster Components](#cluster-components)
-  - [Performance Evaluation](#performance-evaluation)
-  - [Troubleshooting](#troubleshooting)
-  - [Acknowledgements](#acknowledgements)
+1. [Overview](#overview)
+2. [System Architecture](#system-architecture)
+3. [Network Infrastructure](#network-infrastructure)
+4. [Cluster Components](#cluster-components)
+5. [Performance Evaluation](#performance-evaluation)
+6. [Troubleshooting](#troubleshooting)
+7. [Contributors](#contributors)
+8. [Acknowledgements](#acknowledgements)
 
 ---
 ## Overview  
@@ -116,10 +113,18 @@ All known issues, diagnostic steps, and recovery procedures are centralized in a
 
 ---
 
+## Contributors
+* [Nikolas Spyropoulos](https://github.com/nspyrop03)
+* [Giannis Polychronopoulos](https://github.com/JohnnyPol)
+* [Nikolaos Tsalkitzis](https://github.com/nikostsalkitzis)
+* [Nikolaos Mpeligiannis](https://github.com/nikolaosss)
+* [George Kouseris](https://en.wikipedia.org/wiki/I_Don%27t_Know)
+
+---
 ## Acknowledgements  
 This project was developed by students of **ECE, NTUA (2024–2025)** within the framework of **Parallel Processing Systems and HPC research**.  
 
 Special thanks to:
-- CSLab, NTUA for technical guidance  
+- CSLab, NTUA, for technical guidance  
 - Raspberry Pi Foundation for the open hardware platform  
 - The open-source communities of SLURM, Ansible, and Prometheus  
