@@ -1,0 +1,9 @@
+---
+- name: Restart chrony service
+  hosts: all
+  become: yes  # This enables sudo
+  tasks:
+    - name: Restart chrony using systemctl
+      ansible.builtin.systemd:
+        name: chrony
+        state: restarted
